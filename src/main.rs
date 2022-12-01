@@ -1,14 +1,14 @@
 extern crate core;
 
-mod day_1;
-mod day_2;
-mod day_3;
+mod day_01;
+mod day_02;
+mod day_03;
 mod helper;
 
 use helper::*;
 
 fn main() {
-    //todo string slice and type conversion for arrayvec
+    //todo cli menu
     //todo (nice to have) automated puzzle downloading and answer checking
 
     println!("Welcome to Advent of Code 2022 solver");
@@ -19,7 +19,7 @@ fn main() {
     let input = 1;
 
     let func = match input {
-        _ => day_1::run,
+        _ => day_01::run,
     };
 
     let answer_one = func(Part::One);
