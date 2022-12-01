@@ -20,6 +20,7 @@ pub fn run(part: Part) -> Output {
 }
 
 pub fn part1(input: &Input) -> Output {
+    //from calorie streaks seperated by empty lines into a list of calorie totals.
     let mut sum: u32 = 0;
     let mut result = ArrayVec::<u32, 1000>::new();
     for x in input {
@@ -35,6 +36,7 @@ pub fn part1(input: &Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
+    //from calorie streaks seperated by empty lines into a list of calorie totals.
     let mut sum: u32 = 0;
     let mut result = ArrayVec::<u32, 1000>::new();
     for x in input {
@@ -46,6 +48,7 @@ pub fn part2(input: &Input) -> Output {
         }
     }
 
+    //sum the 3 highest
     let mut output = 0;
     for _ in 1..=3 {
         let max_index = result.iter().position_max().unwrap();
