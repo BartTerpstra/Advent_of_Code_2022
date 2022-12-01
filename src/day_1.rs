@@ -1,5 +1,6 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
+use itertools::Itertools;
 use std::io::empty;
 
 const INPUT: &str = include_str!("../input/1.txt");
@@ -37,5 +38,22 @@ pub fn part1(input: &Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
+    let mut sum: u32 = 0;
+    let mut result = ArrayVec::<u32, 1000>::new();
+    for x in input {
+        if x.is_empty() {
+            result.push(sum);
+            sum = 0;
+        } else {
+            sum += x.parse::<u32>().unwrap();
+        }
+    }
+
+    let mut output = 0;
+    for _ in 1..=3 {
+        let max_index = result.iter().position_max().unwrap();
+        output += result.pop_at(max_index).unwrap();
+        println!("{}", output);
+    }
+    Output::U32(output)
 }
