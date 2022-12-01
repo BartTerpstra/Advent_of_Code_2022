@@ -8,7 +8,6 @@ const INPUT: &str = include_str!("../input/1.txt");
 pub type Input = ArrayVec<&'static str, 2254>;
 
 pub fn read() -> Input {
-    //TODO basically just string slice INPUT by line and select and convert to correct type.
     INPUT.split('\n').collect()
 }
 
@@ -25,12 +24,10 @@ pub fn part1(input: &Input) -> Output {
     let mut result = ArrayVec::<u32, 1000>::new();
     for x in input {
         if x.is_empty() {
-            println!("new line");
-            result.push(sum); //todo integer.parse(x)
+            result.push(sum);
             sum = 0;
         } else {
-            println!("value");
-            sum += x.parse::<u32>().unwrap(); //todo interger.parse(x);
+            sum += x.parse::<u32>().unwrap();
         }
     }
 
