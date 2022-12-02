@@ -7,15 +7,11 @@ use std::ops::Deref;
 
 const INPUT: &str = include_str!("../input/2.txt");
 
-pub type Input = ArrayVec<(Hand, Hand), 2500>; //todo example, do change
+pub type Input = ArrayVec<&'static str, 2500>; //todo example, do change
 
 pub fn read() -> Input {
     //by line, split line, to chararray, to hand tuple
-    INPUT
-        .split('\n')
-        .map(|x| x.chars().collect::<Vec<char>>())
-        .map(|f| (map_hand(f[2], 0), map_hand(f[0], 0)))
-        .collect()
+    INPUT.lines().collect()
 }
 
 pub fn run(part: Part) -> Output {
@@ -49,6 +45,8 @@ pub fn part1(input: &Input) -> Output {
     Output::U32(
         input
             .iter()
+            .map(|x| x.chars().collect::<Vec<char>>())
+            .map(|f| (map_hand(f[2], 0), map_hand(f[0], 0)))
             .map(|pair| {
                 get_result_value(who_wins(pair.0.borrow(), pair.1.borrow()))
                     + get_value(pair.0.borrow())
@@ -58,7 +56,8 @@ pub fn part1(input: &Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
-    return Output::U32(3);
+    // Output::U32(input.iter().map(|pair| {})).sum();
+    return Output::U32(0);
 }
 
 fn map_hand(signifier: char, offset: usize) -> Hand {
@@ -94,6 +93,10 @@ fn who_wins(you: &Hand, opponent: &Hand) -> MatchResult {
             Scissors => Draw,
         },
     }
+}
+
+fn get_match_result(entry: char) -> MatchResult {
+    Win
 }
 
 fn get_result_value(result: MatchResult) -> u32 {
