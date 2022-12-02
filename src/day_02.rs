@@ -14,7 +14,7 @@ pub fn read() -> Input {
     INPUT
         .split('\n')
         .map(|x| x.chars().collect::<Vec<char>>())
-        .map(|f| (map_hand(f[0], 0), map_hand(f[2], 0)))
+        .map(|f| (map_hand(f[2], 0), map_hand(f[0], 0)))
         .collect()
 }
 
@@ -41,21 +41,24 @@ enum MatchResult {
 //too high 10913
 //too high 10532
 //too high 15488
-pub fn part1(input: &Input) -> Output {
-    let vec: Vec<u32> = input
-        .iter()
-        .map(|pair| {
-            get_result_value(who_wins(pair.0.borrow(), pair.1.borrow()))
-                + get_value(pair.0.borrow())
-        })
-        .collect();
 
-    return Output::U32(vec.iter().sum::<u32>());
+//too high 13709
+//too high 14090
+//too low 9134
+pub fn part1(input: &Input) -> Output {
+    Output::U32(
+        input
+            .iter()
+            .map(|pair| {
+                get_result_value(who_wins(pair.0.borrow(), pair.1.borrow()))
+                    + get_value(pair.0.borrow())
+            })
+            .sum(),
+    )
 }
 
 pub fn part2(input: &Input) -> Output {
     return Output::U32(3);
-    // unimplemented!()
 }
 
 fn map_hand(signifier: char, offset: usize) -> Hand {
@@ -63,8 +66,8 @@ fn map_hand(signifier: char, offset: usize) -> Hand {
     some_answers.rotate_left(offset);
 
     match signifier {
-        'Y' => some_answers.remove(0),
-        'X' => some_answers.remove(1),
+        'X' => some_answers.remove(0),
+        'Y' => some_answers.remove(1),
         'Z' => some_answers.remove(2),
         'A' => Rock,
         'B' => Paper,
