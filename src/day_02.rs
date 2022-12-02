@@ -46,7 +46,7 @@ pub fn part1(input: &Input) -> Output {
         input
             .iter()
             .map(|x| x.chars().collect::<Vec<char>>())
-            .map(|f| (map_hand(f[2], 0), map_hand(f[0], 0)))
+            .map(|f| (map_hand(&f[2], 0), map_hand(&f[0], 0)))
             .map(|pair| {
                 get_result_value(who_wins(pair.0.borrow(), pair.1.borrow()))
                     + get_value(pair.0.borrow())
@@ -56,11 +56,16 @@ pub fn part1(input: &Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
-    // Output::U32(input.iter().map(|pair| {})).sum();
-    return Output::U32(0);
+    Output::U32(
+        input
+            .iter()
+            .map(|x| x.chars().collect())
+            .map(|x: Vec<char>| get_result_value(
+                get_match_result(x.get(0).unwrap())) +
+                get_complement_value(&map_hand(x.get(2).unwrap(), 0), &get_match_result(x.get(0).unwrap()))).sum())
 }
 
-fn map_hand(signifier: char, offset: usize) -> Hand {
+fn map_hand(signifier: &char, offset: usize) -> Hand {
     let mut some_answers = vec![Rock, Paper, Scissors];
     some_answers.rotate_left(offset);
 
@@ -95,8 +100,13 @@ fn who_wins(you: &Hand, opponent: &Hand) -> MatchResult {
     }
 }
 
-fn get_match_result(entry: char) -> MatchResult {
-    Win
+fn get_match_result(entry: &char) -> MatchResult {
+    match entry {
+        'X' => Loss,
+        'Y' => Draw,
+        'Z' => Win,
+        _ => panic!("invalid data"),
+    }
 }
 
 fn get_result_value(result: MatchResult) -> u32 {
@@ -106,6 +116,15 @@ fn get_result_value(result: MatchResult) -> u32 {
         Loss => 0,
     }
 }
+
+fn get_complement_value(other: &Hand, result: &MatchResult) -> u32 {
+    match result {
+        Win => (get_value(other) + 1) % 3,
+        Draw => get_value(other),
+        Loss => (get_value(other) + 2) % 3,
+    }
+}
+
 fn get_value(thrown: &Hand) -> u32 {
     match thrown {
         Rock => 1,
