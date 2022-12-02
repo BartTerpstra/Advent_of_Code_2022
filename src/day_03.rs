@@ -18,10 +18,10 @@
 //     }
 // }
 //
-// pub fn part1(input: Input) -> Output {
+// pub fn part1(input: &Input) -> Output {
 //     unimplemented!()
 // }
 //
-// pub fn part2(input: Input) -> Output {
+// pub fn part2(input: &Input) -> Output {
 //     unimplemented!()
 // }

@@ -9,6 +9,7 @@ use helper::*;
 
 fn main() {
     //todo cli menu
+    //todo timing
     //todo (nice to have) automated puzzle downloading and answer checking
 
     println!("Welcome to Advent of Code 2022 solver");
@@ -19,7 +20,7 @@ fn main() {
     let input = 1;
 
     let func = match input {
-        _ => day_01::run,
+        _ => day_02::run,
     };
 
     let answer_one = func(Part::One);
