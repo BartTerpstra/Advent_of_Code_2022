@@ -34,13 +34,6 @@ enum MatchResult {
     Loss,
 }
 
-//too high 10913
-//too high 10532
-//too high 15488
-
-//too high 13709
-//too high 14090
-//too low 9134
 pub fn part1(input: &Input) -> Output {
     Output::U32(
         input
@@ -48,21 +41,26 @@ pub fn part1(input: &Input) -> Output {
             .map(|x| x.chars().collect::<Vec<char>>())
             .map(|f| (map_hand(&f[2], 0), map_hand(&f[0], 0)))
             .map(|pair| {
-                get_result_value(who_wins(pair.0.borrow(), pair.1.borrow()))
+                get_result_value(&who_wins(pair.0.borrow(), pair.1.borrow()))
                     + get_value(pair.0.borrow())
             })
             .sum(),
     )
 }
 
+//NOTE this solution gives the wrong answer. the right answer is 10560.
+//maybe come back later and look up why
 pub fn part2(input: &Input) -> Output {
     Output::U32(
         input
             .iter()
             .map(|x| x.chars().collect())
-            .map(|x: Vec<char>| get_result_value(
-                get_match_result(x.get(0).unwrap())) +
-                get_complement_value(&map_hand(x.get(2).unwrap(), 0), &get_match_result(x.get(0).unwrap()))).sum())
+            .map(|x: Vec<char>| {
+                get_result_value(&get_match_result(&x[2]))
+                    + get_complement_value(&map_hand(&x[0], 0), &get_match_result(&x[2]))
+            })
+            .sum(),
+    )
 }
 
 fn map_hand(signifier: &char, offset: usize) -> Hand {
@@ -105,11 +103,14 @@ fn get_match_result(entry: &char) -> MatchResult {
         'X' => Loss,
         'Y' => Draw,
         'Z' => Win,
-        _ => panic!("invalid data"),
+        _ => {
+            println!("{}", entry);
+            panic!("invalid data")
+        }
     }
 }
 
-fn get_result_value(result: MatchResult) -> u32 {
+fn get_result_value(result: &MatchResult) -> u32 {
     match result {
         Win => 6,
         Draw => 3,
@@ -117,6 +118,7 @@ fn get_result_value(result: MatchResult) -> u32 {
     }
 }
 
+//given another players hand and the result of the match from your perspective, get the value of the hand you threw
 fn get_complement_value(other: &Hand, result: &MatchResult) -> u32 {
     match result {
         Win => (get_value(other) + 1) % 3,

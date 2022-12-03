@@ -1,5 +1,6 @@
 extern crate core;
 
+mod alt_day_02;
 mod day_01;
 mod day_02;
 mod day_03;
@@ -20,7 +21,7 @@ fn main() {
     let input = 1;
 
     let func = match input {
-        _ => day_02::run,
+        _ => alt_day_02::run,
     };
 
     let answer_one = func(Part::One);

@@ -34,5 +34,16 @@ pub fn part1(input: &Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
+    return Output::U32(input.iter().fold(0, |acc, str| match *str {
+        "A X" => acc + 0 + 3, //rock scissors (loss)
+        "A Y" => acc + 3 + 1, //rock rock (draw)
+        "A Z" => acc + 6 + 2, //rock paper (win)
+        "B X" => acc + 0 + 1, //paper rock (loss)
+        "B Y" => acc + 3 + 2, //paper paper  (draw)
+        "B Z" => acc + 6 + 3, //paper scissors (win)
+        "C X" => acc + 0 + 2, //scissors paper (loss)
+        "C Y" => acc + 3 + 3, //scissors scissors (draw)
+        "C Z" => acc + 6 + 1, //scissors rock (win)
+        _ => acc,
+    }));
 }
