@@ -1,7 +1,6 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use itertools::Itertools;
-use std::io::empty;
 
 const INPUT: &str = include_str!("../input/1.txt");
 

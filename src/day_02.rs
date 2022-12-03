@@ -3,7 +3,6 @@ use crate::day_02::MatchResult::{Draw, Loss, Win};
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use std::borrow::Borrow;
-use std::ops::Deref;
 
 const INPUT: &str = include_str!("../input/2.txt");
 
