@@ -22,7 +22,7 @@ fn main() {
     let input = 1;
 
     let func = match input {
-        _ => day_03::run,
+        _ => day_04::run,
     };
 
     let answer_one = func(Part::One);

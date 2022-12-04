@@ -18,9 +18,31 @@ pub fn run(part: Part) -> Output {
 }
 
 pub fn part1(input: &Input) -> Output {
-    Output::U32(-1)
+    let mut sum = 0;
+    for x in input {
+        let ranges: Vec<&str> = x.split(',').collect();
+        assert_eq!(ranges.len(), 2);
+
+        let left_range: Vec<&str> = ranges.get(0).unwrap().split('-').collect();
+
+        let right_range: Vec<&str> = ranges.get(1).unwrap().split('-').collect();
+
+        let ll = left_range.get(0).unwrap().parse::<u8>().unwrap();
+        let lr = left_range.get(1).unwrap().parse::<u8>().unwrap();
+        let rl = right_range.get(0).unwrap().parse::<u8>().unwrap();
+        let rr = right_range.get(1).unwrap().parse::<u8>().unwrap();
+
+        if is_either_one_superset_or_equal(ll, lr, rl, rr) {
+            sum += 1;
+        }
+    }
+    Output::U32(sum)
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(-1)
+    Output::U32(0)
+}
+
+fn is_either_one_superset_or_equal(ll: u8, lr: u8, rl: u8, rr: u8) -> bool {
+    (ll >= rl && lr >= rr) || (rl >= ll && rr >= rr)
 }

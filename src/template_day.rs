@@ -19,9 +19,9 @@
 // }
 //
 // pub fn part1(input: &Input) -> Output {
-//     Output::U32(-1)
+//     Output::U32(0)
 // }
 //
 // pub fn part2(input: &Input) -> Output {
-//     Output::U32(-1)
+//     Output::U32(0)
 // }
