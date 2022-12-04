@@ -19,9 +19,9 @@
 // }
 //
 // pub fn part1(input: &Input) -> Output {
-//     unimplemented!()
+//     Output::U32(-1)
 // }
 //
 // pub fn part2(input: &Input) -> Output {
-//     unimplemented!()
+//     Output::U32(-1)
 // }
