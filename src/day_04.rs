@@ -82,5 +82,5 @@ fn is_either_one_superset_or_equal(ll: u8, lr: u8, rl: u8, rr: u8) -> bool {
 
 //is either hand of the right range inside the bound of the left range?
 fn do_overlap(ll: u8, lr: u8, rl: u8, rr: u8) -> bool {
-    (rl >= ll && rl <= lr) || (rr >= ll && rr <= lr)
+    (rl >= ll && rl <= lr) || (rr >= ll && rr <= lr) || (rl <= ll && rr >= lr)
 }
