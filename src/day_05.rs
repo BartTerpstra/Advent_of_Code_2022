@@ -58,16 +58,13 @@ pub fn part1(input: &Input) -> Output {
     println!("instructions: \n{:?}", instructions);
 
     for instruction in instructions {
+        //illegal because it's still unstable
         //let items_to_move = &grid[instruction.1 as usize].take(instruction.0..);
 
         for countdown in 0..instruction.0 {
-            let index_of_last = grid[(instruction.1 - 1) as usize].len() - 1;
-            let item_to_move = grid[(instruction.1 - 1) as usize]
-                .remove(index_of_last)
-                .clone();
+            let item_to_move = grid[(instruction.1 - 1) as usize].pop().unwrap();
 
-            let mut to: &mut Vec<char> = &mut grid[(instruction.2 - 1) as usize];
-            to.push(item_to_move);
+            grid[(instruction.2 - 1) as usize].push(item_to_move);
         }
     }
     println!("final state: {:?}", grid);
@@ -75,6 +72,7 @@ pub fn part1(input: &Input) -> Output {
     for x in grid {
         print!("{}", x.last().unwrap());
     }
+    println!();
 
     Output::U32(0)
 }
