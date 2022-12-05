@@ -19,7 +19,6 @@ pub fn run(part: Part) -> Output {
     }
 }
 
-//DRHZRGQVT
 pub fn part1(input: &Input) -> Output {
     //create array of lists of items representing the dock
     let mut grid: ArrayVec<Vec<char>, 9> = ArrayVec::new();
@@ -39,7 +38,9 @@ pub fn part1(input: &Input) -> Output {
         }
     }
 
-    println!("grid: \n {:?}", grid);
+    grid.iter_mut().for_each(|c| c.reverse());
+
+    // println!("grid: \n {:?}", grid);
 
     let mut instructions: Vec<(u8, u8, u8)> = Vec::new();
 
