@@ -1,9 +1,10 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
+use std::borrow::Borrow;
 
-const INPUT: &str = include_str!("../input/?.txt");
+const INPUT: &str = include_str!("../input/5.txt");
 
-pub type Input = ArrayVec<u8, 1024>; //todo example, do change
+pub type Input = &'static str; //todo example, do change
 
 pub fn read() -> Input {
     //TODO basically just string slice INPUT by line and select and convert to correct type.
@@ -18,7 +19,63 @@ pub fn run(part: Part) -> Output {
     }
 }
 
+//DRHZRGQVT
 pub fn part1(input: &Input) -> Output {
+    //create array of lists of items representing the dock
+    let mut grid: ArrayVec<Vec<char>, 9> = ArrayVec::new();
+    for x in 0..9 {
+        grid.push(Vec::new());
+    }
+
+    // for each line, check every container space on that heigh. save it if there is something
+    for x in input.lines().take(8) {
+        //IF grid
+        let charline: Vec<char> = x.chars().collect();
+        for x in 0..9 {
+            let char = charline[x * 4 + 1];
+            if char != ' ' {
+                grid[x].push(char);
+            }
+        }
+    }
+
+    println!("grid: \n {:?}", grid);
+
+    let mut instructions: Vec<(u8, u8, u8)> = Vec::new();
+
+    for instruction in input.lines().skip(10) {
+        if instruction.is_empty() {
+            continue;
+        }
+
+        let tokens: Vec<&str> = instruction.split(' ').collect();
+        let amount: u8 = tokens[1].parse::<u8>().unwrap();
+        let from: u8 = tokens[3].parse::<u8>().unwrap();
+        let to: u8 = tokens[5].parse::<u8>().unwrap();
+
+        instructions.push((amount, from, to));
+    }
+    println!("instructions: \n{:?}", instructions);
+
+    for instruction in instructions {
+        //let items_to_move = &grid[instruction.1 as usize].take(instruction.0..);
+
+        for countdown in 0..instruction.0 {
+            let index_of_last = grid[(instruction.1 - 1) as usize].len() - 1;
+            let item_to_move = grid[(instruction.1 - 1) as usize]
+                .remove(index_of_last)
+                .clone();
+
+            let mut to: &mut Vec<char> = &mut grid[(instruction.2 - 1) as usize];
+            to.push(item_to_move);
+        }
+    }
+    println!("final state: {:?}", grid);
+
+    for x in grid {
+        print!("{}", x.last().unwrap());
+    }
+
     Output::U32(0)
 }
 
