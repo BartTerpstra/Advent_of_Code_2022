@@ -1,5 +1,7 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
+use std::collections::HashSet;
+use std::hash::Hash;
 
 const INPUT: &str = include_str!("../input/6.txt");
 
@@ -27,7 +29,6 @@ pub fn part1(input: &Input) -> Output {
         count += 1;
     }
     if is_unique(&window) {
-        println!("{:?}", window);
         return Output::U8(4);
     }
     for x in input.iter().skip(4) {
@@ -43,7 +44,26 @@ pub fn part1(input: &Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
+    let mut count: u32 = 0;
+    let mut window: ArrayVec<char, 14> = ArrayVec::new();
+
+    for x in input.iter().take(14) {
+        window.push(*x);
+        count += 1;
+    }
+    if is_unique_message(&window) {
+        return Output::U8(4);
+    }
+    for x in input.iter().skip(14) {
+        window.pop_at(0);
+        window.push(*x);
+        count += 1;
+        if is_unique_message(&window) {
+            return Output::U32(count);
+        }
+    }
+
+    Output::U32(count)
 }
 
 fn is_unique(window: &ArrayVec<char, 4>) -> bool {
@@ -55,4 +75,9 @@ fn is_unique(window: &ArrayVec<char, 4>) -> bool {
         }
     }
     return true;
+}
+
+fn is_unique_message(window: &ArrayVec<char, 14>) -> bool {
+    let set: HashSet<&char> = window.iter().collect();
+    return set.len() == 14;
 }
