@@ -250,7 +250,16 @@ pub fn part2(input: &Input) -> Output {
         }
     }
 
-    Output::U32(0)
+    let used_space: u32 = memory.get(0).unwrap().size;
+    let target_to_delete: u32 = 30000000 - (70000000 - used_space);
+    let size_of_folder_to_delete: u32 = memory
+        .iter()
+        .filter(|x| x.is_directory)
+        .map(|x| x.size)
+        .filter(|x| *x >= target_to_delete)
+        .min()
+        .unwrap();
+    Output::U32(size_of_folder_to_delete)
 }
 
 fn alread_found(name: &String, current_directory: Address, memory: &ArrayVec<File, 429>) -> bool {
