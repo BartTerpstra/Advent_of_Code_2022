@@ -7,6 +7,7 @@ mod day_03;
 mod day_04;
 mod day_05;
 mod day_06;
+mod day_07;
 mod helper;
 
 use helper::*;
@@ -24,7 +25,7 @@ fn main() {
     let input = 1;
 
     let func = match input {
-        _ => day_06::run,
+        _ => day_07::run,
     };
 
     let answer_one = func(Part::One);
