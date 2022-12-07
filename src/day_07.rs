@@ -40,7 +40,7 @@ struct Address {
 
 fn new_file(name: String, size: u32, parent: Address, memory: &mut ArrayVec<File, 429>) {
     //increase parent folder size
-    memory.get_mut(parent.index).unwrap().size += size;
+    recursive_size_increase(parent, size, memory);
     let new_file = File {
         name,
         size,
@@ -76,6 +76,15 @@ fn new_dir(name: String, parent: Address, memory: &mut ArrayVec<File, 429>) {
         .children
         .push(new_dir.index);
     memory.push(new_dir);
+}
+
+fn recursive_size_increase(initial_folder: Address, size: u32, mem: &mut ArrayVec<File, 429>) {
+    if initial_folder.index == usize::MAX {
+        return;
+    }
+    let curr_folder = mem.get_mut(initial_folder.index).unwrap();
+    curr_folder.size += size;
+    recursive_size_increase(curr_folder.parent, size, mem)
 }
 
 pub fn read() -> Input {
@@ -160,8 +169,8 @@ pub fn part1(input: &Input) -> Output {
             CLI::directory(d) => {
                 let name = match d {
                     CLI_Directory::dir(d) => d.to_string(),
-                    CLI_Directory::dir_back => panic!("file system contains loop"),
-                    CLI_Directory::root => panic!("file system contains loop"),
+                    CLI_Directory::dir_back => panic!("file system contains loop"), //these could be solved
+                    CLI_Directory::root => panic!("file system contains loop"), //these could be solved
                 };
                 if alread_found(&name, current_directory, &memory) {
                     continue;
@@ -171,12 +180,6 @@ pub fn part1(input: &Input) -> Output {
         }
     }
 
-    for x in &memory {
-        println!("{:?}", x);
-    }
-
-    println!("{}", memory.len());
-
     let answer: u32 = memory
         .iter()
         .filter(|x| x.is_directory)
@@ -185,7 +188,69 @@ pub fn part1(input: &Input) -> Output {
         .sum();
 
     //too high 1565323
+    //1427048
     Output::U32(answer)
+}
+
+pub fn part2(input: &Input) -> Output {
+    //build file structure
+    //breaking assumption: every folder is only visited once
+    let mut root = File {
+        name: "/".to_string(),
+        size: 0,
+        is_directory: true,
+        children: vec![],
+        parent: Address { index: usize::MAX },
+        index: Address { index: 0 },
+    };
+
+    let mut memory: ArrayVec<File, 429> = ArrayVec::new();
+    memory.push(root);
+
+    let mut current_directory: Address = Address { index: 0 };
+
+    //construct the tree in memory
+    for x in input {
+        match x {
+            CLI::cd(d) => match d {
+                CLI_Directory::dir(name) => {
+                    current_directory = memory
+                        .get(current_directory.index)
+                        .unwrap()
+                        .children
+                        .iter()
+                        .map(|x| memory.get(x.index).unwrap())
+                        .find(|c| c.name == *name)
+                        .unwrap()
+                        .index
+                }
+                CLI_Directory::dir_back => {
+                    current_directory = memory.get(current_directory.index).unwrap().parent
+                }
+                CLI_Directory::root => current_directory = Address { index: 0 },
+            },
+            CLI::ls => {} //do nothing
+            CLI::file(size, name) => {
+                if alread_found(&name.to_string(), current_directory, &memory) {
+                    continue;
+                }
+                new_file(name.to_string(), *size, current_directory, &mut memory);
+            }
+            CLI::directory(d) => {
+                let name = match d {
+                    CLI_Directory::dir(d) => d.to_string(),
+                    CLI_Directory::dir_back => panic!("file system contains loop"), //these could be solved
+                    CLI_Directory::root => panic!("file system contains loop"), //these could be solved
+                };
+                if alread_found(&name, current_directory, &memory) {
+                    continue;
+                }
+                new_dir(name, current_directory, &mut memory);
+            }
+        }
+    }
+
+    Output::U32(0)
 }
 
 fn alread_found(name: &String, current_directory: Address, memory: &ArrayVec<File, 429>) -> bool {
@@ -201,8 +266,4 @@ fn alread_found(name: &String, current_directory: Address, memory: &ArrayVec<Fil
         println!("duplicate!")
     }
     return found;
-}
-
-pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
 }
