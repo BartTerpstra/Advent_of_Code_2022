@@ -23,6 +23,7 @@ enum CLI_Directory {
     root,
 }
 
+#[derive(Debug)]
 struct File {
     name: String,
     size: u32,
@@ -32,12 +33,12 @@ struct File {
     index: Address,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 struct Address {
     index: usize,
 }
 
-fn new_file(name: String, size: u32, parent: Address, memory: &mut ArrayVec<File, 899>) {
+fn new_file(name: String, size: u32, parent: Address, memory: &mut ArrayVec<File, 429>) {
     //increase parent folder size
     memory.get_mut(parent.index).unwrap().size += size;
     let new_file = File {
@@ -58,7 +59,7 @@ fn new_file(name: String, size: u32, parent: Address, memory: &mut ArrayVec<File
     memory.push(new_file);
 }
 
-fn new_dir(name: String, parent: Address, memory: &mut ArrayVec<File, 899>) {
+fn new_dir(name: String, parent: Address, memory: &mut ArrayVec<File, 429>) {
     let new_dir = File {
         name,
         size: 0,
@@ -101,9 +102,6 @@ pub fn read() -> Input {
         answer.push(addition);
     }
 
-    for x in &answer {
-        println!("{:?}", x);
-    }
     return answer;
 }
 
@@ -127,7 +125,7 @@ pub fn part1(input: &Input) -> Output {
         index: Address { index: 0 },
     };
 
-    let mut memory: ArrayVec<File, 899> = ArrayVec::new();
+    let mut memory: ArrayVec<File, 429> = ArrayVec::new();
     memory.push(root);
 
     let mut current_directory: Address = Address { index: 0 };
@@ -154,21 +152,30 @@ pub fn part1(input: &Input) -> Output {
             },
             CLI::ls => {} //do nothing
             CLI::file(size, name) => {
+                if alread_found(&name.to_string(), current_directory, &memory) {
+                    continue;
+                }
                 new_file(name.to_string(), *size, current_directory, &mut memory);
             }
             CLI::directory(d) => {
-                new_dir(
-                    match d {
-                        CLI_Directory::dir(d) => d.to_string(),
-                        CLI_Directory::dir_back => panic!("file system contains loop"),
-                        CLI_Directory::root => panic!("file system contains loop"),
-                    },
-                    current_directory,
-                    &mut memory,
-                );
+                let name = match d {
+                    CLI_Directory::dir(d) => d.to_string(),
+                    CLI_Directory::dir_back => panic!("file system contains loop"),
+                    CLI_Directory::root => panic!("file system contains loop"),
+                };
+                if alread_found(&name, current_directory, &memory) {
+                    continue;
+                }
+                new_dir(name, current_directory, &mut memory);
             }
         }
     }
+
+    for x in &memory {
+        println!("{:?}", x);
+    }
+
+    println!("{}", memory.len());
 
     let answer: u32 = memory
         .iter()
@@ -179,6 +186,21 @@ pub fn part1(input: &Input) -> Output {
 
     //too high 1565323
     Output::U32(answer)
+}
+
+fn alread_found(name: &String, current_directory: Address, memory: &ArrayVec<File, 429>) -> bool {
+    let found = memory
+        .get(current_directory.index)
+        .unwrap()
+        .children
+        .iter()
+        .map(|x| memory.get(x.index).unwrap())
+        .any(|x| x.name == *name);
+
+    if found {
+        println!("duplicate!")
+    }
+    return found;
 }
 
 pub fn part2(input: &Input) -> Output {
