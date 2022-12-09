@@ -1,6 +1,7 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use std::borrow::BorrowMut;
+use std::f64::RADIX;
 
 const INPUT: &str = include_str!("../input/8.txt");
 const FOREST_WIDTH: usize = 99;
@@ -171,7 +172,66 @@ pub fn part1(input: &mut Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
+    let mut highest_found = 0;
+    for x in 0..FOREST_WIDTH {
+        for y in 0..FOREST_HEIGHT {
+            let mut total: u32 = 1;
+            let considering = &input[x + y * FOREST_WIDTH];
+            let mut running_count = 0;
+
+            //while trees above it are smaller than itself AND in bounds
+            //count trees then multiply with total
+            while true && running_count <= (FOREST_HEIGHT - (FOREST_HEIGHT - y)) {
+                if input[x + (y - running_count) * FOREST_WIDTH].height < considering.height {
+                    running_count += 1;
+                } else {
+                    break;
+                }
+            }
+            total *= running_count as u32;
+            running_count = 0;
+
+            //todo while trees below it are smaller than itself AND in bounds
+            //todo count trees then multiply with total
+            while true && running_count <= (FOREST_HEIGHT - y) {
+                if input[x + (y + running_count) * FOREST_WIDTH].height < considering.height {
+                    running_count += 1;
+                } else {
+                    break;
+                }
+            }
+            total *= running_count as u32;
+            running_count = 0;
+
+            //todo while trees left it are smaller than itself AND in bounds
+            //todo count trees then multiply with total
+            while true && running_count <= FOREST_WIDTH - (FOREST_WIDTH - x) {
+                if input[(x - running_count) + y * FOREST_WIDTH].height < considering.height {
+                    running_count += 1;
+                } else {
+                    break;
+                }
+            }
+            total *= running_count as u32;
+            running_count = 0;
+
+            //todo while trees right it are smaller than itself AND in bounds
+            //todo count trees then multiply with total
+            while true && running_count <= FOREST_WIDTH - x {
+                if input[(x + running_count) + y * FOREST_WIDTH].height < considering.height {
+                    running_count += 1;
+                } else {
+                    break;
+                }
+            }
+            total *= running_count as u32;
+
+            if total > highest_found {
+                highest_found = total;
+            }
+        }
+    }
+    Output::U32(highest_found)
 }
 
 fn can_be_seen(outer: u8, inner: &Tree) -> bool {
