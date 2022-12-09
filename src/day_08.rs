@@ -1,10 +1,13 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
+use std::borrow::BorrowMut;
 
 const INPUT: &str = include_str!("../input/8.txt");
 const FOREST_WIDTH: usize = 99;
 const FOREST_HEIGHT: usize = 99;
 const FOREST_AREA: usize = FOREST_WIDTH * FOREST_HEIGHT;
+
+#[derive(Debug)]
 struct Tree {
     height: u8,
     spotted_from_edge: bool,
@@ -18,6 +21,7 @@ pub fn read() -> Input {
             continue;
         };
         let height = match x {
+            '0' => 0,
             '1' => 1,
             '2' => 2,
             '3' => 3,
@@ -27,7 +31,7 @@ pub fn read() -> Input {
             '7' => 7,
             '8' => 8,
             '9' => 9,
-            _ => panic!("input validation error"),
+            _ => panic!("input validation error!"),
         };
 
         answer.push(Tree {
@@ -71,10 +75,11 @@ With 16 trees visible on the edge and another 5 visible in the interior, a total
 Consider your map; how many trees are visible from outside the grid?
 **/
 pub fn run(part: Part) -> Output {
-    let input = read();
+    let mut input1 = read();
+    let input2 = read();
     match part {
-        Part::One => part1(&input),
-        Part::Two => part2(&input),
+        Part::One => part1(&mut input1),
+        Part::Two => part2(&input2),
     }
 }
 
@@ -83,11 +88,9 @@ strategy:
 mark all trees on the edge as visible,
 for each cardinal direction (e,w,s,n) check every line leading from that edge
 starting with the internal trees check one close to the edge**/
-pub fn part1(input: &Input) -> Output {
-
-    // todo suspected off-by-one error regarding width and height
-    //todo east and west
-    //todo returning the actual answer
+pub fn part1(input: &mut Input) -> Output {
+    //todo higher answer than 572
+    //todo rather than find edge, check entire row, even if there is a dip in the heights
 
     for x in 0..FOREST_WIDTH {
         input[x].spotted_from_edge = true; //the first row:0,1,2,3, etc
@@ -98,80 +101,79 @@ pub fn part1(input: &Input) -> Output {
         input[y * FOREST_WIDTH + FOREST_WIDTH - 1].spotted_from_edge = true; //the east side: 98, 197, etc
     }
 
-    //for north edge
-    for x in 0..FOREST_WIDTH {
-        let mut found_hidden_tree = false;
+    //for north edge inners
+    //for every inner
+    //either check all of them or until you have found a tree with max height.
+    for x in 1..FOREST_WIDTH - 1 {
+        let mut found_height: u8 = input[x].height;
         let mut depth = 1;
-        while !found_hidden_tree {
-            let outer_index = x + (FOREST_WIDTH * (depth - 1));
+        while found_height != 9 && depth < FOREST_WIDTH {
             let inner_index = x + (FOREST_WIDTH * depth);
-            if can_be_seen(&input[outer_index], &input[inner_index]) {
+            if can_be_seen(found_height, &input[inner_index]) {
                 input[inner_index].spotted_from_edge = true;
-                depth += 1;
-            } else {
-                found_hidden_tree = true;
+                found_height = input[inner_index].height;
             }
+            depth += 1
         }
     }
 
-    //for south edge
-    for x in 0..FOREST_WIDTH {
-        let mut found_hidden_tree = false;
+    //for south edge inners
+    for x in 1..FOREST_WIDTH - 1 {
+        let first_index_last_row = (FOREST_WIDTH * (FOREST_HEIGHT - 1));
+        let mut found_height = input[x + first_index_last_row].height;
         let mut depth = 1;
-        while !found_hidden_tree {
-            let first_index_last_row = (FOREST_WIDTH * (FOREST_HEIGHT-1));
-            let outer_index = x + first_index_last_row - (FOREST_WIDTH * (depth-1));
-            let inner_index = x + first_index_last_row - (FOREST_WIDTH * depth);
-            if can_be_seen(&input[outer_index], &input[inner_index]) {
+        while found_height != 9 && depth < FOREST_WIDTH {
+            let inner_index = x + first_index_last_row - (FOREST_WIDTH * (depth - 1));
+            if can_be_seen(found_height, &input[inner_index]) {
                 input[inner_index].spotted_from_edge = true;
-                depth += 1;
-            } else {
-                found_hidden_tree = true;
+                found_height = input[inner_index].height;
             }
+            depth += 1;
         }
     }
 
-    //for west edge
-    for x in 0..FOREST_HEIGHT {
-        let mut found_hidden_tree = false;
+    //for west edge inners
+    for x in 1..FOREST_HEIGHT - 1 {
+        let mut found_height = input[x * FOREST_WIDTH].height;
         let mut depth = 1;
-        while !found_hidden_tree {
-            let outer_index = x + depth-1 + (FOREST_WIDTH*depth);
-            let inner_index = x + depth + (FOREST_WIDTH*depth);
-            if can_be_seen(&input[outer_index], &input[inner_index]) {
+        while found_height != 9 && depth < 99 {
+            let inner_index = x * FOREST_WIDTH + depth;
+            if can_be_seen(found_height, &input[inner_index]) {
                 input[inner_index].spotted_from_edge = true;
-                depth += 1;
-            } else {
-                found_hidden_tree = true;
+                found_height = input[inner_index].height;
             }
+            depth += 1;
         }
     }
 
-    //for east edge
-    for x in 0..FOREST_HEIGHT {
-        let mut found_hidden_tree = false;
+    //for east edge inners
+    for x in 1..FOREST_HEIGHT - 1 {
+        let upper_right_index = FOREST_WIDTH - 1;
+        let mut found_height = input[x * FOREST_WIDTH + upper_right_index].height;
         let mut depth = 1;
-        while !found_hidden_tree {
-            let upper_right_index = FOREST_WIDTH);
-            let outer_index = x + first_index_last_row - (FOREST_WIDTH * (depth-1));
-            let inner_index = x + first_index_last_row - (FOREST_WIDTH * depth);
-            if can_be_seen(&input[outer_index], &input[inner_index]) {
+        while found_height != 9 && depth < 99 {
+            let inner_index = x * FOREST_WIDTH + upper_right_index - depth;
+            if can_be_seen(found_height, &input[inner_index]) {
                 input[inner_index].spotted_from_edge = true;
-                depth += 1;
-            } else {
-                found_hidden_tree = true;
+                found_height = input[inner_index].height;
             }
+            depth += 1;
         }
     }
 
+    let answer: u32 = input
+        .iter()
+        .map(|x| x.spotted_from_edge)
+        .filter(|x| *x)
+        .count() as u32;
 
-    Output::U32(0)
+    Output::U32(answer)
 }
 
 pub fn part2(input: &Input) -> Output {
     Output::U32(0)
 }
 
-fn can_be_seen(outer: &Tree, inner: &Tree) -> bool {
-    outer.height < inner.height
+fn can_be_seen(outer: u8, inner: &Tree) -> bool {
+    outer < inner.height
 }
