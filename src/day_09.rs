@@ -48,12 +48,12 @@ fn nature_abhors_a_vacuum(head: &RopeEnd, tail: &mut RopeEnd) {
     } else {
         if head.x > tail.x {
             tail.x += 1;
-        } else {
+        } else if head.x < tail.x {
             tail.x -= 1;
         }
         if head.y > tail.y {
             tail.y += 1;
-        } else {
+        } else if head.y < tail.y {
             tail.y -= 1;
         }
     }
