@@ -171,13 +171,14 @@ pub fn part1(input: &mut Input) -> Output {
     Output::U32(answer)
 }
 
+//too high 220320
 pub fn part2(input: &Input) -> Output {
     let mut highest_found = 0;
     for x in 0..FOREST_WIDTH {
         for y in 0..FOREST_HEIGHT {
             let mut total: u32 = 1;
             let considering = &input[x + y * FOREST_WIDTH];
-            let mut running_count = 0;
+            let mut running_count = 1;
 
             //while trees above it are smaller than itself AND in bounds
             //count trees then multiply with total
@@ -189,11 +190,11 @@ pub fn part2(input: &Input) -> Output {
                 }
             }
             total *= running_count as u32;
-            running_count = 0;
+            running_count = 1;
 
             //todo while trees below it are smaller than itself AND in bounds
             //todo count trees then multiply with total
-            while true && running_count <= (FOREST_HEIGHT - y) {
+            while true && running_count <= (FOREST_HEIGHT - y - 1) {
                 if input[x + (y + running_count) * FOREST_WIDTH].height < considering.height {
                     running_count += 1;
                 } else {
@@ -201,23 +202,23 @@ pub fn part2(input: &Input) -> Output {
                 }
             }
             total *= running_count as u32;
-            running_count = 0;
+            running_count = 1;
 
-            //todo while trees left it are smaller than itself AND in bounds
+            //todo while trees left of it are smaller than itself AND in bounds
             //todo count trees then multiply with total
-            while true && running_count <= FOREST_WIDTH - (FOREST_WIDTH - x) {
-                if input[(x - running_count) + y * FOREST_WIDTH].height < considering.height {
+            while true && running_count < FOREST_WIDTH - (FOREST_WIDTH - x) {
+                if input[x + y * FOREST_WIDTH - running_count].height < considering.height {
                     running_count += 1;
                 } else {
                     break;
                 }
             }
             total *= running_count as u32;
-            running_count = 0;
+            running_count = 1;
 
             //todo while trees right it are smaller than itself AND in bounds
             //todo count trees then multiply with total
-            while true && running_count <= FOREST_WIDTH - x {
+            while true && running_count < FOREST_WIDTH - x {
                 if input[(x + running_count) + y * FOREST_WIDTH].height < considering.height {
                     running_count += 1;
                 } else {
