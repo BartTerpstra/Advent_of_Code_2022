@@ -8,7 +8,7 @@ const INPUT: &str = include_str!("../input/9.txt");
 
 pub type Input = Vec<Operation>;
 
-#[derive(Eq, Hash, Clone, Copy)]
+#[derive(Eq, Hash, Clone)]
 struct RopeEnd {
     x: i32,
     y: i32,
@@ -102,8 +102,6 @@ pub fn part1(input: &Input) -> Output {
     let mut head = RopeEnd { x: 0, y: 0 };
     let mut tail = RopeEnd { x: 0, y: 0 };
     let mut visited = HashSet::new();
-    let mut max_x = 0;
-    let mut max_y = 0;
     visited.insert(RopeEnd { x: 0, y: 0 });
 
     for x in input {
@@ -116,22 +114,40 @@ pub fn part1(input: &Input) -> Output {
                 RIGHT => head.x += 1,
             }
             nature_abhors_a_vacuum(&head, &mut tail);
-            visited.insert(tail);
-        }
-        if tail.x.abs() > max_x {
-            max_x = tail.x;
-        }
-        if tail.y.abs() > max_y {
-            max_y = tail.y;
+            visited.insert(tail.clone());
         }
     }
-
-    println!("max x: {}", max_x);
-    println!("max y: {}", max_y);
 
     Output::U32(visited.len() as u32)
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
+    assert_eq!(input.len(), 2000);
+
+    let mut rope: ArrayVec<RopeEnd, 10> = ArrayVec::new();
+    for _ in 0..10 {
+        rope.push(RopeEnd { x: 0, y: 0 });
+    }
+
+    let mut visited = HashSet::new();
+    visited.insert(RopeEnd { x: 0, y: 0 });
+
+    for x in input {
+        let amount = x.amount;
+        for _ in 0..amount {
+            match x.direction {
+                UP => rope[0].y += 1,
+                LEFT => rope[0].x -= 1,
+                DOWN => rope[0].y -= 1,
+                RIGHT => rope[0].x += 1,
+            }
+            for index in 0..rope.len() - 1 {
+                let head = rope[index].clone();
+                nature_abhors_a_vacuum(&head, &mut rope[index + 1]);
+            }
+            visited.insert(rope[9].clone());
+        }
+    }
+
+    Output::U32(visited.len() as u32)
 }
