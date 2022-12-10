@@ -27,7 +27,7 @@ fn main() {
     let input = 1;
 
     let func = match input {
-        _ => day_08::run,
+        _ => day_09::run,
     };
 
     let answer_one = func(Part::One);
