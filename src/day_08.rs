@@ -172,7 +172,8 @@ pub fn part1(input: &mut Input) -> Output {
 }
 
 //too high        220320
-//too low  168000
+//too low         168000
+//                201600
 pub fn part2(input: &Input) -> Output {
     let mut highest_found = 0;
     for x in 0..FOREST_WIDTH {
@@ -191,9 +192,9 @@ pub fn part2(input: &Input) -> Output {
 
             while up >= 0 {
                 let checking = &input[to_index(x, up as usize)];
-                if checking.height < center.height {
-                    seen_up += 1;
-                } else {
+                seen_up += 1;
+
+                if checking.height >= center.height {
                     break;
                 }
 
@@ -205,18 +206,16 @@ pub fn part2(input: &Input) -> Output {
 
             while down < FOREST_HEIGHT {
                 let checking = &input[to_index(x, down)];
-                if checking.height < center.height {
-                    seen_down += 1;
-                } else {
+                seen_down += 1;
+                if checking.height >= center.height {
                     break;
                 }
                 down += 1;
             }
             while left >= 0 {
                 let checking = &input[to_index(left as usize, y)];
-                if checking.height < center.height {
-                    seen_left += 1;
-                } else {
+                seen_left += 1;
+                if checking.height >= center.height {
                     break;
                 }
                 if left == 0 {
@@ -227,9 +226,8 @@ pub fn part2(input: &Input) -> Output {
 
             while right < FOREST_WIDTH {
                 let checking = &input[to_index(right, y)];
-                if checking.height < center.height {
-                    seen_right += 1;
-                } else {
+                seen_right += 1;
+                if checking.height >= center.height {
                     break;
                 }
                 right += 1;
