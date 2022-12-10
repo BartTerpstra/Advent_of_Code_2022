@@ -67,8 +67,8 @@ pub fn part1(input: &Input) -> Output {
     for x in 1..u8::MAX {
         //evaluate register
         if pol_cycles.contains(&x) {
-            println!("register {}", register);
-            println!("x {}", x);
+            // println!("register {}", register);
+            // println!("x {}", x);
             answers.push(x as i32 * register)
         }
 
@@ -98,5 +98,64 @@ pub fn part1(input: &Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
+    const WIDTH: usize = 40;
+    const HEIGHT: usize = 6;
+    const SIZE: usize = WIDTH * HEIGHT;
+    let mut screen: Vec<bool> = vec![false; SIZE];
+
+    //process items
+    let mut register: i32 = 1;
+    let mut pending = 0;
+
+    let mut input = input.iter();
+    let mut occupied: u32 = 0;
+
+    for cycle in 0..i32::MAX {
+        //evaluate register to screen
+        if cycle == 40 {
+            println!("register: {}", register);
+        }
+        if cycle % WIDTH as i32 <= (register + 1) && cycle % WIDTH as i32 >= (register - 1) {
+            screen[cycle as usize] = true;
+        }
+
+        //process
+        if occupied == 0 {
+            let potential_instruction = input.next();
+            if potential_instruction.is_none() {
+                break;
+            }
+            let instruction = potential_instruction.unwrap();
+
+            match instruction.instruction_type {
+                ADDX => {
+                    pending = instruction.value;
+                    occupied += 1;
+                }
+                NOP => {}
+            }
+        } else {
+            occupied -= 1;
+            if occupied == 0 {
+                register += pending;
+            }
+        }
+    }
+
+    //print screen to string
+    let mut answer = String::new();
+    let mut count = 0;
+    for x in screen {
+        if count % 40 == 0 {
+            answer.push('\n');
+        }
+        if x {
+            answer.push('#');
+        } else {
+            answer.push('.');
+        }
+        count += 1;
+    }
+
+    Output::String(answer)
 }
