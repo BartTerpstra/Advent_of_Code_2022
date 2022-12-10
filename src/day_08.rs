@@ -171,68 +171,81 @@ pub fn part1(input: &mut Input) -> Output {
     Output::U32(answer)
 }
 
-//too high 220320
+//too high        220320
+//too low  168000
 pub fn part2(input: &Input) -> Output {
     let mut highest_found = 0;
     for x in 0..FOREST_WIDTH {
         for y in 0..FOREST_HEIGHT {
-            let mut total: u32 = 1;
-            let considering = &input[x + y * FOREST_WIDTH];
-            let mut running_count = 1;
+            let mut up: i32 = y as i32 - 1;
+            let mut down = y + 1;
+            let mut left: i32 = x as i32 - 1;
+            let mut right = x + 1;
 
-            //while trees above it are smaller than itself AND in bounds
-            //count trees then multiply with total
-            while true && running_count <= (FOREST_HEIGHT - (FOREST_HEIGHT - y)) {
-                if input[x + (y - running_count) * FOREST_WIDTH].height < considering.height {
-                    running_count += 1;
+            let mut seen_up = 0;
+            let mut seen_down = 0;
+            let mut seen_left = 0;
+            let mut seen_right = 0;
+
+            let center = &input[to_index(x, y)];
+
+            while up >= 0 {
+                let checking = &input[to_index(x, up as usize)];
+                if checking.height < center.height {
+                    seen_up += 1;
                 } else {
                     break;
                 }
-            }
-            total *= running_count as u32;
-            running_count = 1;
 
-            //todo while trees below it are smaller than itself AND in bounds
-            //todo count trees then multiply with total
-            while true && running_count <= (FOREST_HEIGHT - y - 1) {
-                if input[x + (y + running_count) * FOREST_WIDTH].height < considering.height {
-                    running_count += 1;
+                if up == 0 {
+                    break;
+                }
+                up -= 1;
+            }
+
+            while down < FOREST_HEIGHT {
+                let checking = &input[to_index(x, down)];
+                if checking.height < center.height {
+                    seen_down += 1;
                 } else {
                     break;
                 }
+                down += 1;
             }
-            total *= running_count as u32;
-            running_count = 1;
-
-            //todo while trees left of it are smaller than itself AND in bounds
-            //todo count trees then multiply with total
-            while true && running_count < FOREST_WIDTH - (FOREST_WIDTH - x) {
-                if input[x + y * FOREST_WIDTH - running_count].height < considering.height {
-                    running_count += 1;
+            while left >= 0 {
+                let checking = &input[to_index(left as usize, y)];
+                if checking.height < center.height {
+                    seen_left += 1;
                 } else {
                     break;
                 }
+                if left == 0 {
+                    break;
+                }
+                left -= 1;
             }
-            total *= running_count as u32;
-            running_count = 1;
 
-            //todo while trees right it are smaller than itself AND in bounds
-            //todo count trees then multiply with total
-            while true && running_count < FOREST_WIDTH - x {
-                if input[(x + running_count) + y * FOREST_WIDTH].height < considering.height {
-                    running_count += 1;
+            while right < FOREST_WIDTH {
+                let checking = &input[to_index(right, y)];
+                if checking.height < center.height {
+                    seen_right += 1;
                 } else {
                     break;
                 }
+                right += 1;
             }
-            total *= running_count as u32;
 
+            let total: u32 = seen_up * seen_down * seen_left * seen_right;
             if total > highest_found {
                 highest_found = total;
             }
         }
     }
     Output::U32(highest_found)
+}
+
+fn to_index(x: usize, y: usize) -> usize {
+    x + y * FOREST_WIDTH
 }
 
 fn can_be_seen(outer: u8, inner: &Tree) -> bool {
