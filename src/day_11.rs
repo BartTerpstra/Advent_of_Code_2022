@@ -8,7 +8,8 @@ use std::usize;
 
 const INPUT: &str = include_str!("../input/11.txt");
 
-pub type Input = Vec<Monkey<u32>>;
+type T = u64;
+pub type Input = Vec<Monkey<T>>;
 
 struct Monkey<T> {
     items: Vec<T>,
@@ -38,17 +39,16 @@ pub fn read() -> Input {
         assert_eq!(components.len(), 2, "operation string parse error");
         let operator = components[0].chars().next().unwrap();
 
-        let mut empathy: Box<dyn Fn(u32) -> u32>;
-        if components[1] == "old" {
-            empathy = Box::new(move |x: u32| x * x)
+        let mut empathy = if components[1] == "old" {
+            Box::new(move |x| x * x) as Box<dyn Fn(T) -> T>
         } else {
-            let value = components[1].parse::<u32>().unwrap();
-            empathy = match operator {
-                '+' => Box::new(move |x: u32| value + x),
-                '*' => Box::new(move |x: u32| value * x),
+            let value = components[1].parse::<T>().unwrap();
+            match operator {
+                '+' => Box::new(move |x| value + x) as Box<dyn Fn(T) -> T>,
+                '*' => Box::new(move |x| value * x) as Box<dyn Fn(T) -> T>,
                 _ => panic!("expression parse failed"),
-            };
-        }
+            }
+        };
 
         let divisibility = lines[3]
             .strip_prefix("  Test: divisible by ")
@@ -67,7 +67,7 @@ pub fn read() -> Input {
             .parse()
             .unwrap();
 
-        let new_monkey = Monkey::<u32> {
+        let new_monkey = Monkey::<T> {
             items,
             empathy,
             divisibility,
@@ -129,5 +129,45 @@ pub fn part1() -> Output {
 }
 
 pub fn part2() -> Output {
-    Output::U32(0)
+    let input = &mut read();
+
+    let BIG_BAD_DIV = input.iter().map(|x| x.divisibility).product::<T>();
+    println!("BIG BAD {}", BIG_BAD_DIV);
+
+    for round in 0..10000 {
+        for index in 0..input.len() {
+            while !input[index].items.is_empty() {
+                //take first
+                let mut new = 0;
+                {
+                    let monkey = &mut input[index];
+                    let item = monkey.items[0];
+                    monkey.items.remove(0);
+                    monkey.activity += 1;
+
+                    let func = &monkey.empathy;
+                    new = func(item) % BIG_BAD_DIV;
+                }
+                {
+                    //assert 0 % y == 0 == true
+                    let move_to = if new % input[index].divisibility == 0 {
+                        input[index].left_partner
+                    } else {
+                        input[index].right_partner
+                    };
+                    input[move_to].items.push(new);
+                }
+            }
+        }
+    }
+
+    let answer = input
+        .iter()
+        .map(|x| x.activity as T)
+        .sorted()
+        .rev()
+        .take(2)
+        .product();
+
+    Output::U64(answer)
 }
