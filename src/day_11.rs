@@ -1,6 +1,7 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use itertools::{Itertools, PeekingNext};
+use std::ops::{Add, Mul};
 use std::usize;
 
 const INPUT: &str = include_str!("../input/11_test.txt");
@@ -33,13 +34,18 @@ pub fn read() -> Input {
             .collect();
         assert_eq!(components.len(), 2, "operation string parse error");
         let operator = components[0].chars().next().unwrap();
-        let value = components[1].parse::<usize>().unwrap();
 
-        let empathy = match operator {
-            '+' => Box::new(|x: usize| x + value) as Box<dyn Fn(usize) -> usize>,
-            '*' => Box::new(|x: usize| x * value) as Box<dyn Fn(usize) -> usize>,
-            _ => panic!("expression parse failed"),
-        };
+        let mut empathy: Box<dyn Fn(usize) -> usize>;
+        if components[1] == "old" {
+            empathy = Box::new(move |x: usize| x * x)
+        } else {
+            let value = components[1].parse::<usize>().unwrap();
+            empathy = match operator {
+                '+' => Box::new(move |x: usize| value + x),
+                '*' => Box::new(move |x: usize| value * x),
+                _ => panic!("expression parse failed"),
+            };
+        }
 
         let divisibility: u32 = lines[3]
             .strip_prefix("  Test: divisible by ")
