@@ -5,9 +5,15 @@ const INPUT: &str = include_str!("../input/11_test.txt");
 
 pub type Input = Vec<str>;
 
-//todo struct monkey
+// todo struct monkey
 //has: Vec<Items>, some kind of function, divistibility, left partner, right partner
-
+struct Monkey {
+    items: Vec<Items>,
+    empathy: dyn Fn(usize) -> usize,
+    divisibility: u32,
+    left_partner: usize,
+    right_partner: usize,
+}
 pub fn read() -> Input {
     INPUT.lines().collect()
 }
