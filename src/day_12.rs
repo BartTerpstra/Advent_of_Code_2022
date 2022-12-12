@@ -1,21 +1,69 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
+use priority_queue::PriorityQueue;
+use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
+use std::hash::{Hash, Hasher};
 use std::ops::Index;
 
 const INPUT: &str = include_str!("../input/12_test.txt");
 
 //todo class for 2 dimensional map.
-const WIDTH: usize = 168;
-const HEIGHT: usize = 41;
+const WIDTH: usize = 8; //168;
+const HEIGHT: usize = 5; //41;
 const SIZE: usize = WIDTH * HEIGHT;
 pub type Input = Vec<u8>;
 
+#[derive(Clone, Copy, Eq, Hash, Debug)]
+struct Position(u8, u8); //X, Y
+
+impl PartialEq<Self> for Position {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0 && self.1 == other.1
+    }
+}
+
+#[derive(Eq)]
 struct Trail {
-    route: Vec<(u8, u8)>,
-    tail: (u8, u8),
+    route: Vec<Position>,
+    tail: Position,
     cost: u32,
+}
+
+impl Hash for Trail {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.tail.hash(state);
+        self.cost.hash(state);
+    }
+}
+
+impl PartialEq<Self> for Trail {
+    fn eq(&self, other: &Self) -> bool {
+        self.tail == other.tail
+    }
+}
+
+impl Trail {
+    fn get_normalised_cost(&self) -> u32 {
+        if self.cost == 0 {
+            return 0;
+        };
+        self.route.len() as u32 / self.cost
+    }
+
+    fn priority(&self) -> u32 {
+        u32::MAX - self.get_normalised_cost()
+    }
+
+    fn push(&self, route_step: Position, step_price: u32) -> Trail {
+        let mut route = self.route.to_vec();
+        route.push(route_step);
+        Trail {
+            route,
+            tail: route_step,
+            cost: self.cost + step_price,
+        }
+    }
 }
 
 pub fn read() -> Input {
@@ -55,15 +103,36 @@ pub fn run(part: Part) -> Output {
     }
 }
 
-fn index_to_position(index: usize) -> (u8, u8) {
+fn index_to_position(index: usize) -> Position {
     let y: u8 = (index / WIDTH) as u8;
     let x: u8 = (index % WIDTH) as u8;
-    (x, y)
+    Position(x, y)
+}
+fn position_to_index(pos: Position) -> usize {
+    (pos.0 as usize + pos.1 as usize * WIDTH) as usize
+}
+
+fn valid_neighbours(position: Position) -> Vec<Position> {
+    let mut answer = Vec::new();
+    if position.0 > 0 {
+        answer.push(Position((position.0 - 1), position.1));
+    }
+    if position.0 < (WIDTH - 1) as u8 {
+        answer.push(Position((position.0 + 1), position.1));
+    }
+    if position.1 > 0 {
+        answer.push(Position(position.0, position.1 - 1));
+    }
+    if position.1 < (HEIGHT - 1) as u8 {
+        answer.push(Position(position.0, position.1 + 1));
+    }
+
+    answer
 }
 
 pub fn part1(input: &Input) -> Output {
-    let start: (u8, u8) = {
-        let mut answer = (u8::MAX, u8::MAX);
+    let start = {
+        let mut answer = Position(u8::MAX, u8::MAX);
         for x in 0..input.len() {
             if input[x] == 0 {
                 answer = index_to_position(x);
@@ -73,10 +142,10 @@ pub fn part1(input: &Input) -> Output {
         answer
     };
 
-    let end: (u8, u8) = {
-        let mut answer = (u8::MAX, u8::MAX);
+    let end = {
+        let mut answer = Position(u8::MAX, u8::MAX);
         for x in 0..input.len() {
-            if input[x] == 24 {
+            if input[x] == 52 {
                 answer = index_to_position(x);
                 break;
             }
@@ -85,16 +154,52 @@ pub fn part1(input: &Input) -> Output {
     };
 
     //todo (optional) create bias (function that increases weight if it moves towards the goal and lowers if it moves away.
-    // let queue = priority_queue::new();
     //todo create priority queue of Trail ordered by cheapest per move. (trail of 10/20 comes before 1/3)
+
+    let mut queue: PriorityQueue<Trail, u32> = PriorityQueue::new();
+    let head = Trail {
+        route: Vec::new(),
+        tail: start,
+        cost: 0,
+    };
+    let priority = head.priority();
+    queue.push(head, priority);
+
     //while trail not reached destination
-    //pick head of queue
-    //take best option
-    //break and return if end
-    //else add to queue
+    while !queue.is_empty() {
+        //pick head of queue
+        let considering = queue.pop().unwrap().0;
+
+        //add all options that don't loop back on itself to queue as new trails
+        let options = valid_neighbours(considering.tail);
+        for x in &options {
+            if input[position_to_index(considering.tail)] == input[position_to_index(*x)] {
+                println!("found");
+            }
+        }
+
+        options
+            .iter()
+            .filter(/*ledge*/ |x| {
+                input[position_to_index(**x)].abs_diff(input[position_to_index(considering.tail)])
+                    <= 1
+            })
+            .filter(
+                /*prevent loops (efficiency only. might slow instead)*/
+                |x| !considering.route.contains(x),
+            )
+            .map(|x| considering.push(*x, 1 /*todo bias here*/))
+            .for_each(|x| {
+                let priority = x.priority();
+                queue.push(x, priority);
+            });
+
+        //break and return if end
+        //else add to queue
+    }
     //endwhile
 
-    Output::U32(0)
+    Output::String("failed to find".to_string())
 }
 
 pub fn part2(input: &Input) -> Output {
