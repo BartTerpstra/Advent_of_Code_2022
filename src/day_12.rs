@@ -12,6 +12,12 @@ const HEIGHT: usize = 41;
 const SIZE: usize = WIDTH * HEIGHT;
 pub type Input = Vec<u8>;
 
+struct Trail {
+    route: Vec<(u8, u8)>,
+    tail: (u8, u8),
+    cost: u32,
+}
+
 pub fn read() -> Input {
     let mut ordering: Vec<char> = ('a'..='z')
         .chain(('A'..='Z'))
@@ -49,11 +55,37 @@ pub fn run(part: Part) -> Output {
     }
 }
 
+fn index_to_position(index: usize) -> (u8, u8) {
+    let y: u8 = (index / WIDTH) as u8;
+    let x: u8 = (index % WIDTH) as u8;
+    (x, y)
+}
+
 pub fn part1(input: &Input) -> Output {
-    //todo get start position (0)
-    //todo get end position (24)
+    let start: (u8, u8) = {
+        let mut answer = (u8::MAX, u8::MAX);
+        for x in 0..input.len() {
+            if input[x] == 0 {
+                answer = index_to_position(x);
+                break;
+            }
+        }
+        answer
+    };
+
+    let end: (u8, u8) = {
+        let mut answer = (u8::MAX, u8::MAX);
+        for x in 0..input.len() {
+            if input[x] == 24 {
+                answer = index_to_position(x);
+                break;
+            }
+        }
+        answer
+    };
+
     //todo (optional) create bias (function that increases weight if it moves towards the goal and lowers if it moves away.
-    //todo create struct of Trail (Vec<Position<x: u8,y: u8>>, head: Position)
+    // let queue = priority_queue::new();
     //todo create priority queue of Trail ordered by cheapest per move. (trail of 10/20 comes before 1/3)
     //while trail not reached destination
     //pick head of queue

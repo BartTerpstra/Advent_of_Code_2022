@@ -1,9 +1,7 @@
 use crate::day_10::InstructionType::{ADDX, NOP};
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
-use derive_more::Display;
 use itertools::Itertools;
-use regex::internal::Inst;
 use std::ops::Add;
 
 const INPUT: &str = include_str!("../input/10.txt");
@@ -15,7 +13,6 @@ struct Instruction {
     value: i32,
 }
 
-#[derive(Display)]
 enum InstructionType {
     ADDX,
     NOP,
