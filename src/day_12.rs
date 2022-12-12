@@ -12,7 +12,20 @@ const INPUT: &str = include_str!("../input/12.txt");
 const WIDTH: usize = 168;
 const HEIGHT: usize = 41;
 const SIZE: usize = WIDTH * HEIGHT;
-pub type Input = Vec<u8>;
+pub type Input = Vec<u8>; //height, weight
+
+#[derive(Clone, Copy, Eq, Hash, Debug)]
+struct Node {
+    position: Position,
+    cost: u32,
+    height: u8,
+}
+
+impl PartialEq<Self> for Node {
+    fn eq(&self, other: &Self) -> bool {
+        self.position == other.position && self.cost == other.cost
+    }
+}
 
 #[derive(Clone, Copy, Eq, Hash, Debug)]
 struct Position(u8, u8); //X, Y
@@ -20,49 +33,6 @@ struct Position(u8, u8); //X, Y
 impl PartialEq<Self> for Position {
     fn eq(&self, other: &Self) -> bool {
         self.0 == other.0 && self.1 == other.1
-    }
-}
-
-#[derive(Eq)]
-struct Trail {
-    route: Vec<Position>,
-    tail: Position,
-    cost: u32,
-}
-
-impl Hash for Trail {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.tail.hash(state);
-        self.cost.hash(state);
-    }
-}
-
-impl PartialEq<Self> for Trail {
-    fn eq(&self, other: &Self) -> bool {
-        self.tail == other.tail
-    }
-}
-
-impl Trail {
-    fn get_normalised_cost(&self) -> u32 {
-        if self.cost == 0 {
-            return 0;
-        };
-        self.route.len() as u32 / self.cost
-    }
-
-    fn priority(&self) -> u32 {
-        u32::MAX - self.get_normalised_cost()
-    }
-
-    fn push(&self, route_step: Position, step_price: u32) -> Trail {
-        let mut route = self.route.to_vec();
-        route.push(route_step);
-        Trail {
-            route,
-            tail: route_step,
-            cost: self.cost + step_price,
-        }
     }
 }
 
@@ -123,7 +93,85 @@ fn valid_neighbours(position: Position) -> Vec<Position> {
     answer
 }
 
+fn cost_to_priority(cost: u32) -> u32 {
+    u32::MAX - cost
+}
+
 pub fn part1(input: &Input) -> Output {
+    //do actual dijkstra
+    //by floodfilling cost
+
+    let start = {
+        let mut answer = Position(u8::MAX, u8::MAX);
+        for x in 0..input.len() {
+            if input[x] == 0 {
+                answer = index_to_position(x);
+                break;
+            }
+        }
+        answer
+    };
+
+    let end = {
+        let mut answer = Position(u8::MAX, u8::MAX);
+        for x in 0..input.len() {
+            if input[x] == 25 {
+                answer = index_to_position(x);
+                break;
+            }
+        }
+        answer
+    };
+
+    let mut grid: Vec<Node> = Vec::new();
+    for x in 0..input.len() {
+        let position = index_to_position(x);
+        grid.push(Node {
+            position,
+            height: input[x],
+            cost: u32::MAX,
+        })
+    }
+
+    let mut queue: PriorityQueue<&Node, u32> = PriorityQueue::new();
+    {
+        queue.push(&grid[position_to_index(start)], cost_to_priority(0));
+    }
+    //todo (optional) consider biasing to speedup
+    loop {
+        let considering = queue.pop().unwrap().0.clone();
+
+        let options = valid_neighbours(considering.position);
+        for x in options {
+            let mut new_val = 0;
+            {
+                let option = &grid[position_to_index(x)];
+
+                //skip those that go higher or lower than 1
+                if considering.height.abs_diff(option.height) > 1 {
+                    continue;
+                }
+
+                //skip those who have a better score then we want to set them at
+                if option.cost <= considering.cost + 1 {
+                    continue;
+                }
+
+                //if found end, stop
+                if x == end {
+                    return Output::U32(considering.cost + 1);
+                }
+                new_val = considering.cost + 1;
+            }
+            {
+                //set their score to considering+1;
+                let option = &mut grid[position_to_index(x)];
+                option.cost = 0;
+                queue.push(option, cost_to_priority(new_val));
+            }
+        }
+    }
+
     Output::String("failed to find".to_string())
 }
 
@@ -203,3 +251,47 @@ pub fn brokenpart1(input: &Input) -> Output {
     // //endwhile
     Output::String("failed to find".to_string())
 }
+
+//
+// #[derive(Eq)]
+// struct Trail {
+//     route: Vec<Position>,
+//     tail: Position,
+//     cost: u32,
+// }
+//
+// impl Hash for Trail {
+//     fn hash<H: Hasher>(&self, state: &mut H) {
+//         self.tail.hash(state);
+//         self.cost.hash(state);
+//     }
+// }
+//
+// impl PartialEq<Self> for Trail {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.tail == other.tail
+//     }
+// }
+//
+// impl Trail {
+//     fn get_normalised_cost(&self) -> u32 {
+//         if self.cost == 0 {
+//             return 0;
+//         };
+//         self.route.len() as u32 / self.cost
+//     }
+//
+//     fn priority(&self) -> u32 {
+//         u32::MAX - self.get_normalised_cost()
+//     }
+//
+//     fn push(&self, route_step: Position, step_price: u32) -> Trail {
+//         let mut route = self.route.to_vec();
+//         route.push(route_step);
+//         Trail {
+//             route,
+//             tail: route_step,
+//             cost: self.cost + step_price,
+//         }
+//     }
+// }
