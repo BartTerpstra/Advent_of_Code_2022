@@ -6,11 +6,11 @@ use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::ops::Index;
 
-const INPUT: &str = include_str!("../input/12_test.txt");
+const INPUT: &str = include_str!("../input/12.txt");
 
 //todo class for 2 dimensional map.
-const WIDTH: usize = 8; //168;
-const HEIGHT: usize = 5; //41;
+const WIDTH: usize = 168;
+const HEIGHT: usize = 41;
 const SIZE: usize = WIDTH * HEIGHT;
 pub type Input = Vec<u8>;
 
@@ -67,23 +67,16 @@ impl Trail {
 }
 
 pub fn read() -> Input {
-    let mut ordering: Vec<char> = ('a'..='z')
-        .chain(('A'..='Z'))
-        .filter(|x| x != &'E' && x != &'S')
-        .collect();
-    println!("order:{:?} ", &ordering);
+    let mut ordering: Vec<char> = ('a'..='z').filter(|x| x != &'E' && x != &'S').collect();
 
     ordering.insert(0, 'S');
     ordering.push('E');
     let ordering = ordering;
-    println!("order:{:?} ", &ordering);
 
     let lookup = ordering
         .into_iter()
         .zip((0..).into_iter())
         .collect::<HashMap<char, u8>>();
-
-    println!("lookup:{:?} ", &lookup);
 
     let hill = INPUT
         .chars()
@@ -131,77 +124,82 @@ fn valid_neighbours(position: Position) -> Vec<Position> {
 }
 
 pub fn part1(input: &Input) -> Output {
-    let start = {
-        let mut answer = Position(u8::MAX, u8::MAX);
-        for x in 0..input.len() {
-            if input[x] == 0 {
-                answer = index_to_position(x);
-                break;
-            }
-        }
-        answer
-    };
-
-    let end = {
-        let mut answer = Position(u8::MAX, u8::MAX);
-        for x in 0..input.len() {
-            if input[x] == 52 {
-                answer = index_to_position(x);
-                break;
-            }
-        }
-        answer
-    };
-
-    //todo (optional) create bias (function that increases weight if it moves towards the goal and lowers if it moves away.
-    //todo create priority queue of Trail ordered by cheapest per move. (trail of 10/20 comes before 1/3)
-
-    let mut queue: PriorityQueue<Trail, u32> = PriorityQueue::new();
-    let head = Trail {
-        route: Vec::new(),
-        tail: start,
-        cost: 0,
-    };
-    let priority = head.priority();
-    queue.push(head, priority);
-
-    //while trail not reached destination
-    while !queue.is_empty() {
-        //pick head of queue
-        let considering = queue.pop().unwrap().0;
-
-        //add all options that don't loop back on itself to queue as new trails
-        let options = valid_neighbours(considering.tail);
-        for x in &options {
-            if input[position_to_index(considering.tail)] == input[position_to_index(*x)] {
-                println!("found");
-            }
-        }
-
-        options
-            .iter()
-            .filter(/*ledge*/ |x| {
-                input[position_to_index(**x)].abs_diff(input[position_to_index(considering.tail)])
-                    <= 1
-            })
-            .filter(
-                /*prevent loops (efficiency only. might slow instead)*/
-                |x| !considering.route.contains(x),
-            )
-            .map(|x| considering.push(*x, 1 /*todo bias here*/))
-            .for_each(|x| {
-                let priority = x.priority();
-                queue.push(x, priority);
-            });
-
-        //break and return if end
-        //else add to queue
-    }
-    //endwhile
-
     Output::String("failed to find".to_string())
 }
 
 pub fn part2(input: &Input) -> Output {
     Output::U32(0)
+}
+
+pub fn brokenpart1(input: &Input) -> Output {
+    // let start = {
+    //     let mut answer = Position(u8::MAX, u8::MAX);
+    //     for x in 0..input.len() {
+    //         if input[x] == 0 {
+    //             answer = index_to_position(x);
+    //             break;
+    //         }
+    //     }
+    //     answer
+    // };
+    //
+    // let end = {
+    //     let mut answer = Position(u8::MAX, u8::MAX);
+    //     for x in 0..input.len() {
+    //         if input[x] == 25 {
+    //             answer = index_to_position(x);
+    //             break;
+    //         }
+    //     }
+    //     answer
+    // };
+    //
+    // //todo (optional) create bias (function that increases weight if it moves towards the goal and lowers if it moves away.
+    // //todo create priority queue of Trail ordered by cheapest per move. (trail of 10/20 comes before 1/3)
+    //
+    // let mut queue: PriorityQueue<Trail, u32> = PriorityQueue::new();
+    // let head = Trail {
+    //     route: Vec::new(),
+    //     tail: start,
+    //     cost: 0,
+    // };
+    // let head = head.push(start, 0);
+    // let priority = head.priority();
+    // queue.push(head, priority);
+    //
+    // //while trail not reached destination
+    // while !queue.is_empty() {
+    //     //pick head of queue
+    //     let considering = queue.pop().unwrap().0;
+    //
+    //     //add all options that don't loop back on itself to queue as new trails
+    //     let options = valid_neighbours(considering.tail);
+    //
+    //     options
+    //         .iter()
+    //         .filter(/*ledge*/ |x| {
+    //             input[position_to_index(**x)].abs_diff(input[position_to_index(considering.tail)])
+    //                 <= 1
+    //         })
+    //         .filter(
+    //             /*prevent loops (efficiency only. might slow instead)*/
+    //             |x| !considering.route.contains(x),
+    //         )
+    //         .map(|x| {
+    //             considering.push(*x, 1 /*todo bias here*/)
+    //         })
+    //         .for_each(|x| {
+    //             let mut priority = x.priority();
+    //             if input[position_to_index(x.tail)] == input[position_to_index(end)] {
+    //                 println!("WINNER: {:?}", considering.route);
+    //                 priority = u32::MAX;
+    //             }
+    //             queue.push(x, priority);
+    //         });
+    //     if queue.peek().unwrap().0.tail == end {
+    //         return Output::U32(queue.peek().unwrap().0.route.len() as u32 + 1);
+    //     }
+    // }
+    // //endwhile
+    Output::String("failed to find".to_string())
 }
