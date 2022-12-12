@@ -1,3 +1,4 @@
+use crate::helper::Output::U32;
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use priority_queue::PriorityQueue;
@@ -6,11 +7,11 @@ use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::ops::Index;
 
-const INPUT: &str = include_str!("../input/12.txt");
+const INPUT: &str = include_str!("../input/12_test.txt");
 
 //todo class for 2 dimensional map.
-const WIDTH: usize = 168;
-const HEIGHT: usize = 41;
+const WIDTH: usize = 8; //168;
+const HEIGHT: usize = 5; //41;
 const SIZE: usize = WIDTH * HEIGHT;
 pub type Input = Vec<u8>; //height, weight
 
@@ -123,60 +124,85 @@ pub fn part1(input: &Input) -> Output {
         answer
     };
 
-    let mut grid: Vec<Node> = Vec::new();
-    for x in 0..input.len() {
-        let position = index_to_position(x);
-        grid.push(Node {
-            position,
-            height: input[x],
-            cost: u32::MAX,
-        })
-    }
+    let mut grid: Vec<Node> = {
+        let mut grid2 = Vec::new();
+        for x in 0..input.len() {
+            let position = index_to_position(x);
+            grid2.push(Node {
+                position,
+                height: input[x],
+                cost: u32::MAX,
+            })
+        }
+        grid2[position_to_index(start)].cost = 0;
+        grid2
+    };
 
-    let mut queue: PriorityQueue<&Node, u32> = PriorityQueue::new();
+    let mut queue: PriorityQueue<Position, u32> = PriorityQueue::new();
     {
-        queue.push(&grid[position_to_index(start)], cost_to_priority(0));
+        queue.push(start, 0);
     }
     //todo (optional) consider biasing to speedup
-    loop {
-        let considering = queue.pop().unwrap().0.clone();
+    while !queue.is_empty() {
+        let considering = queue.pop().unwrap().0;
 
-        let options = valid_neighbours(considering.position);
+        let options = valid_neighbours(considering);
         for x in options {
-            let mut new_val = 0;
-            {
-                let option = &grid[position_to_index(x)];
+            let height_option = grid[position_to_index(x)].height;
+            let height_considering = grid[position_to_index(considering)].height;
+            let cost_option = grid[position_to_index(x)].cost;
+            let cost_considering = grid[position_to_index(considering)].cost;
 
-                //skip those that go higher or lower than 1
-                if considering.height.abs_diff(option.height) > 1 {
-                    continue;
-                }
-
-                //skip those who have a better score then we want to set them at
-                if option.cost <= considering.cost + 1 {
-                    continue;
-                }
-
-                //if found end, stop
-                if x == end {
-                    return Output::U32(considering.cost + 1);
-                }
-                new_val = considering.cost + 1;
+            //skip those that go higher or lower than 1
+            if !((height_considering + 1) as i32 >= height_option as i32) {
+                println!("{}+1 < {}", height_considering, height_option);
+                continue;
             }
-            {
-                //set their score to considering+1;
-                let option = &mut grid[position_to_index(x)];
-                option.cost = 0;
-                queue.push(option, cost_to_priority(new_val));
+            println!("{}+1 >= {}", height_considering, height_option);
+
+            //skip those who have a better score then we want to set them at
+            if cost_option <= cost_considering + 1 {
+                continue;
             }
+
+            //set their score to considering+1;
+            grid[position_to_index(x)].cost = cost_considering + 1;
+            queue.push(
+                grid[position_to_index(x)].position,
+                cost_to_priority(cost_considering + 1),
+            );
         }
     }
 
+    if grid[position_to_index(end)].cost != u32::MAX {
+        return Output::U32(grid[position_to_index(end)].cost + 2);
+    }
+    grid_print(&grid, WIDTH);
     Output::String("failed to find".to_string())
 }
 
 pub fn part2(input: &Input) -> Output {
     Output::U32(0)
+}
+
+fn to_letter(num: u8) -> char {
+    if num == u8::MAX {
+        return '.';
+    }
+    let look_up: Vec<char> = ('a'..='z').chain(('A'..='Z')).collect();
+
+    look_up[(num) as usize]
+}
+
+fn grid_print(grid: &Vec<Node>, width: usize) {
+    for x in 0..grid.len() {
+        if x % width == 0 {
+            print!("\n");
+        }
+
+        print!("{}", to_letter(grid[x].cost as u8));
+    }
+    print!("\n");
 }
 
 pub fn brokenpart1(input: &Input) -> Output {
