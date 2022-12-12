@@ -191,6 +191,7 @@ fn to_letter(num: u8) -> char {
     }
     let look_up: Vec<char> = ('a'..='z').chain(('A'..='Z')).collect();
 
+    let num = num % 52;
     look_up[(num) as usize]
 }
 
