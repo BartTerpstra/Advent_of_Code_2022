@@ -7,11 +7,11 @@ use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::ops::Index;
 
-const INPUT: &str = include_str!("../input/12_test.txt");
+const INPUT: &str = include_str!("../input/12.txt");
 
 //todo class for 2 dimensional map.
-const WIDTH: usize = 8; //168;
-const HEIGHT: usize = 5; //41;
+const WIDTH: usize = 167;
+const HEIGHT: usize = 41;
 const SIZE: usize = WIDTH * HEIGHT;
 pub type Input = Vec<u8>; //height, weight
 
@@ -55,7 +55,6 @@ pub fn read() -> Input {
         .map(|x| *lookup.get(&x).unwrap())
         .collect();
 
-    println!("hill:{:?} ", hill);
     hill
 }
 
@@ -98,6 +97,8 @@ fn cost_to_priority(cost: u32) -> u32 {
     u32::MAX - cost
 }
 
+//too high 529
+//too high 522
 pub fn part1(input: &Input) -> Output {
     //do actual dijkstra
     //by floodfilling cost
@@ -116,7 +117,7 @@ pub fn part1(input: &Input) -> Output {
     let end = {
         let mut answer = Position(u8::MAX, u8::MAX);
         for x in 0..input.len() {
-            if input[x] == 25 {
+            if input[x] == 27 {
                 answer = index_to_position(x);
                 break;
             }
@@ -155,10 +156,8 @@ pub fn part1(input: &Input) -> Output {
 
             //skip those that go higher or lower than 1
             if !((height_considering + 1) as i32 >= height_option as i32) {
-                println!("{}+1 < {}", height_considering, height_option);
                 continue;
             }
-            println!("{}+1 >= {}", height_considering, height_option);
 
             //skip those who have a better score then we want to set them at
             if cost_option <= cost_considering + 1 {
@@ -175,7 +174,8 @@ pub fn part1(input: &Input) -> Output {
     }
 
     if grid[position_to_index(end)].cost != u32::MAX {
-        return Output::U32(grid[position_to_index(end)].cost + 2);
+        grid_print(&grid, WIDTH);
+        return U32(grid[position_to_index(end)].cost);
     }
     grid_print(&grid, WIDTH);
     Output::String("failed to find".to_string())
