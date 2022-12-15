@@ -1,10 +1,10 @@
-use crate::day_02::Hand::{Paper, Rock, Scissors};
-use crate::day_02::MatchResult::{Draw, Loss, Win};
+use crate::days::day_02::Hand::{Paper, Rock, Scissors};
+use crate::days::day_02::MatchResult::{Draw, Loss, Win};
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use std::borrow::Borrow;
 
-const INPUT: &str = include_str!("../input/2.txt");
+const INPUT: &str = include_str!("../../input/2.txt");
 
 pub type Input = ArrayVec<&'static str, 2500>; //todo example, do change
 

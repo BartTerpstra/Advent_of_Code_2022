@@ -1,7 +1,7 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 
-const INPUT: &str = include_str!("../input/8.txt");
+const INPUT: &str = include_str!("../../input/8.txt");
 const FOREST_WIDTH: usize = 99;
 const FOREST_HEIGHT: usize = 99;
 const FOREST_AREA: usize = FOREST_WIDTH * FOREST_HEIGHT;

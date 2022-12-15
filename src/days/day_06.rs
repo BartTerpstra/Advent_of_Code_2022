@@ -2,7 +2,7 @@ use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use std::collections::HashSet;
 
-const INPUT: &str = include_str!("../input/6.txt");
+const INPUT: &str = include_str!("../../input/6.txt");
 
 pub type Input = Vec<char>; //todo example, do change
 

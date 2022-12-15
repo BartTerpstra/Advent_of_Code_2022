@@ -6,7 +6,7 @@ use std::env::Args;
 use std::ops::{Add, Deref, Mul};
 use std::usize;
 
-const INPUT: &str = include_str!("../input/11.txt");
+const INPUT: &str = include_str!("../../input/11.txt");
 
 type T = u64;
 pub type Input = Vec<Monkey<T>>;

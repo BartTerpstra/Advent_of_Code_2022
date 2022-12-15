@@ -7,7 +7,7 @@ use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::ops::Index;
 
-const INPUT: &str = include_str!("../input/12.txt");
+const INPUT: &str = include_str!("../../input/12.txt");
 
 //todo class for 2 dimensional map.
 const WIDTH: usize = 167;

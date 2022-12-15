@@ -1,21 +1,6 @@
 extern crate core;
 
-mod alt_day_02;
-mod day_01;
-mod day_02;
-mod day_03;
-mod day_04;
-mod day_05;
-mod day_06;
-mod day_07;
-mod day_08;
-mod day_09;
-mod day_10;
-mod day_11;
-mod day_12;
-mod day_13;
-mod day_14;
-mod day_15;
+mod days;
 mod helper;
 
 use helper::*;
@@ -27,22 +12,41 @@ fn main() {
 
     println!("Welcome to Advent of Code 2022 solver");
 
-    let mut func: fn(Part) -> Output;
-    let items: Vec<String> = (1..25).map(|x: i32| x.to_string()).collect::<Vec<String>>();
+    /* run all*/
+    let all_days = days::all();
 
-    let input = 1;
+    let mut postion: u8 = 1;
+    for day in all_days {
+        let answer_one = day(Part::One);
+        let answer_two = day(Part::Two);
 
-    let func = match input {
-        _ => day_12::run,
-    };
+        println!("************************************************************");
+        println!("* Advent of Code: 2022");
+        println!("*   Solution for day {}", postion);
+        println!("*     Part One: {}", answer_one);
+        println!("*     Part Two: {}", answer_two);
+        println!("************************************************************");
 
-    let answer_one = func(Part::One);
-    let answer_two = func(Part::Two);
+        postion += 1;
+    }
+
+    //debug: run 1
+    let day = days::all()[13];
+    let answer_one = day(Part::One);
+    let answer_two = day(Part::Two);
 
     println!("************************************************************");
     println!("* Advent of Code: 2022");
-    println!("*   Solution for...");
+    println!("*   Solution for day ONE OF");
     println!("*     Part One: {}", answer_one);
     println!("*     Part Two: {}", answer_two);
     println!("************************************************************");
+
+    /* todo menu*/
+    // let mut func: fn(Part) -> Output;
+    //
+    // let items: Vec<String> = (1..25).map(|x: i32| x.to_string()).collect::<Vec<String>>();
+    // let func = match input {
+    //     _ => day_12::run,
+    // };
 }

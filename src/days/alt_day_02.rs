@@ -1,7 +1,7 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 
-const INPUT: &str = include_str!("../input/2.txt");
+const INPUT: &str = include_str!("../../input/2.txt");
 
 pub type Input = ArrayVec<&'static str, 2500>; //todo example, do change
 

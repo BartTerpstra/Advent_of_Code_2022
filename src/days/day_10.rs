@@ -1,7 +1,7 @@
-use crate::day_10::InstructionType::{ADDX, NOP};
+use crate::days::day_10::InstructionType::{ADDX, NOP};
 use crate::{Output, Part};
 
-const INPUT: &str = include_str!("../input/10.txt");
+const INPUT: &str = include_str!("../../input/10.txt");
 
 pub type Input = Vec<Instruction>; //todo example, do change
 

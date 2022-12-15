@@ -3,7 +3,7 @@ use arrayvec::ArrayVec;
 use std::collections::HashSet;
 use std::iter::Iterator;
 
-const INPUT: &str = include_str!("../input/3.txt");
+const INPUT: &str = include_str!("../../input/3.txt");
 
 pub type Input = ArrayVec<&'static str, 301>; //todo example, do change
 

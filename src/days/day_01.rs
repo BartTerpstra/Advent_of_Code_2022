@@ -2,7 +2,7 @@ use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use itertools::Itertools;
 
-const INPUT: &str = include_str!("../input/1.txt");
+const INPUT: &str = include_str!("../../input/1.txt");
 
 pub type Input = ArrayVec<&'static str, 2254>;
 

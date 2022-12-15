@@ -1,10 +1,10 @@
-use crate::day_09::Direction::{DOWN, LEFT, RIGHT, UP};
+use crate::days::day_09::Direction::{DOWN, LEFT, RIGHT, UP};
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use itertools::Itertools;
 use std::collections::HashSet;
 
-const INPUT: &str = include_str!("../input/9.txt");
+const INPUT: &str = include_str!("../../input/9.txt");
 
 pub type Input = Vec<Operation>;
 
