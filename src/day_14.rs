@@ -3,7 +3,7 @@ use arrayvec::ArrayVec;
 
 const INPUT: &str = include_str!("../input/14_test.txt");
 
-pub type Input = ArrayVec<str, 1024>; //todo example, do change
+pub type Input = ArrayVec<&'static str, 1024>; //todo example, do change
 
 pub fn read() -> Input {
     //TODO basically just string slice INPUT by line and select and convert to correct type.
