@@ -1,11 +1,8 @@
 use crate::helper::Output::U32;
 use crate::{Output, Part};
-use arrayvec::ArrayVec;
 use priority_queue::PriorityQueue;
-use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet};
-use std::hash::{Hash, Hasher};
-use std::ops::Index;
+use std::collections::HashMap;
+use std::hash::Hash;
 
 const INPUT: &str = include_str!("../../input/12.txt");
 

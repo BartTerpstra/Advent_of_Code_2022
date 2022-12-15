@@ -1,9 +1,5 @@
 use crate::{Output, Part};
-use arrayvec::ArrayVec;
-use itertools::{Itertools, PeekingNext};
-use std::borrow::{Borrow, BorrowMut};
-use std::env::Args;
-use std::ops::{Add, Deref, Mul};
+use itertools::Itertools;
 use std::usize;
 
 const INPUT: &str = include_str!("../../input/11.txt");
@@ -11,7 +7,7 @@ const INPUT: &str = include_str!("../../input/11.txt");
 type T = u64;
 pub type Input = Vec<Monkey<T>>;
 
-struct Monkey<T> {
+pub struct Monkey<T> {
     items: Vec<T>,
     empathy: Box<dyn Fn(T) -> T>,
     divisibility: T,
@@ -39,7 +35,7 @@ pub fn read() -> Input {
         assert_eq!(components.len(), 2, "operation string parse error");
         let operator = components[0].chars().next().unwrap();
 
-        let mut empathy = if components[1] == "old" {
+        let empathy = if components[1] == "old" {
             Box::new(move |x| x * x) as Box<dyn Fn(T) -> T>
         } else {
             let value = components[1].parse::<T>().unwrap();

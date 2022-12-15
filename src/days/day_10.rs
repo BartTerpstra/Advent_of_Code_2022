@@ -5,7 +5,7 @@ const INPUT: &str = include_str!("../../input/10.txt");
 
 pub type Input = Vec<Instruction>; //todo example, do change
 
-struct Instruction {
+pub struct Instruction {
     instruction_type: InstructionType,
     value: i32,
 }

@@ -20,7 +20,7 @@ impl PartialEq<Self> for RopeEnd {
     }
 }
 
-struct Operation {
+pub struct Operation {
     direction: Direction,
     amount: u8,
 }
