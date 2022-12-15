@@ -1,7 +1,5 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
-use std::borrow::BorrowMut;
-use std::f64::RADIX;
 
 const INPUT: &str = include_str!("../input/8.txt");
 const FOREST_WIDTH: usize = 99;
@@ -9,7 +7,7 @@ const FOREST_HEIGHT: usize = 99;
 const FOREST_AREA: usize = FOREST_WIDTH * FOREST_HEIGHT;
 
 #[derive(Debug)]
-struct Tree {
+pub struct Tree {
     height: u8,
     spotted_from_edge: bool,
 }
@@ -120,7 +118,7 @@ pub fn part1(input: &mut Input) -> Output {
 
     //for south edge inners
     for x in 1..FOREST_WIDTH - 1 {
-        let first_index_last_row = (FOREST_WIDTH * (FOREST_HEIGHT - 1));
+        let first_index_last_row = FOREST_WIDTH * (FOREST_HEIGHT - 1);
         let mut found_height = input[x + first_index_last_row].height;
         let mut depth = 1;
         while found_height != 9 && depth < FOREST_WIDTH {

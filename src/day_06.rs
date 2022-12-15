@@ -1,7 +1,6 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 use std::collections::HashSet;
-use std::hash::Hash;
 
 const INPUT: &str = include_str!("../input/6.txt");
 

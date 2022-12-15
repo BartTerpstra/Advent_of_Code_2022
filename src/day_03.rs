@@ -44,13 +44,6 @@ pub fn part2(input: &Input) -> Output {
 }
 
 fn char_in_all_strings(first: &str, second: &str, third: &str) -> char {
-    let mut result: HashSet<char> = HashSet::new();
-    //2413
-    // let set1 = first.chars().collect::<HashSet<char>>();
-    // let set2 = second.chars().collect::<HashSet<char>>();
-    // let set3 = third.chars().collect::<HashSet<char>>();
-    // return *set1.intersection(&set2).find(|x| set3.contains(x)).unwrap();
-
     for x in first.chars().collect::<HashSet<char>>() {
         for y in second.chars().collect::<HashSet<char>>() {
             for z in third.chars().collect::<HashSet<char>>() {

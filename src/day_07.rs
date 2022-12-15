@@ -1,21 +1,20 @@
-use crate::day_07::CLI::cd;
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
-use itertools::Itertools;
-use std::borrow::{Borrow, BorrowMut};
-use std::ptr::null;
 
 const INPUT: &str = include_str!("../input/7.txt");
 
 pub type Input = ArrayVec<CLI, 899>; //todo example, do change
 
+#[allow(non_camel_case_types)]
 #[derive(Debug)]
-enum CLI {
+pub enum CLI {
     cd(CLI_Directory),
     ls,
     file(u32, String),
     directory(CLI_Directory),
 }
+
+#[allow(non_camel_case_types)]
 #[derive(Debug)]
 enum CLI_Directory {
     dir(String),
@@ -161,7 +160,7 @@ pub fn part1(input: &Input) -> Output {
             },
             CLI::ls => {} //do nothing
             CLI::file(size, name) => {
-                if alread_found(&name.to_string(), current_directory, &memory) {
+                if already_found(&name.to_string(), current_directory, &memory) {
                     continue;
                 }
                 new_file(name.to_string(), *size, current_directory, &mut memory);
@@ -172,7 +171,7 @@ pub fn part1(input: &Input) -> Output {
                     CLI_Directory::dir_back => panic!("file system contains loop"), //these could be solved
                     CLI_Directory::root => panic!("file system contains loop"), //these could be solved
                 };
-                if alread_found(&name, current_directory, &memory) {
+                if already_found(&name, current_directory, &memory) {
                     continue;
                 }
                 new_dir(name, current_directory, &mut memory);
@@ -231,7 +230,7 @@ pub fn part2(input: &Input) -> Output {
             },
             CLI::ls => {} //do nothing
             CLI::file(size, name) => {
-                if alread_found(&name.to_string(), current_directory, &memory) {
+                if already_found(&name.to_string(), current_directory, &memory) {
                     continue;
                 }
                 new_file(name.to_string(), *size, current_directory, &mut memory);
@@ -242,7 +241,7 @@ pub fn part2(input: &Input) -> Output {
                     CLI_Directory::dir_back => panic!("file system contains loop"), //these could be solved
                     CLI_Directory::root => panic!("file system contains loop"), //these could be solved
                 };
-                if alread_found(&name, current_directory, &memory) {
+                if already_found(&name, current_directory, &memory) {
                     continue;
                 }
                 new_dir(name, current_directory, &mut memory);
@@ -262,7 +261,7 @@ pub fn part2(input: &Input) -> Output {
     Output::U32(size_of_folder_to_delete)
 }
 
-fn alread_found(name: &String, current_directory: Address, memory: &ArrayVec<File, 429>) -> bool {
+fn already_found(name: &String, current_directory: Address, memory: &ArrayVec<File, 429>) -> bool {
     let found = memory
         .get(current_directory.index)
         .unwrap()

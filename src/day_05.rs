@@ -1,6 +1,5 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
-use std::borrow::Borrow;
 
 const INPUT: &str = include_str!("../input/5.txt");
 
@@ -22,7 +21,7 @@ pub fn run(part: Part) -> Output {
 pub fn part1(input: &Input) -> Output {
     //create array of lists of items representing the dock
     let mut grid: ArrayVec<Vec<char>, 9> = ArrayVec::new();
-    for x in 0..9 {
+    for _ in 0..9 {
         grid.push(Vec::new());
     }
 
@@ -62,7 +61,7 @@ pub fn part1(input: &Input) -> Output {
         //illegal because it's still unstable
         //let items_to_move = &grid[instruction.1 as usize].take(instruction.0..);
 
-        for countdown in 0..instruction.0 {
+        for _ in 0..instruction.0 {
             let item_to_move = grid[(instruction.1 - 1) as usize].pop().unwrap();
 
             grid[(instruction.2 - 1) as usize].push(item_to_move);
@@ -81,7 +80,7 @@ pub fn part1(input: &Input) -> Output {
 pub fn part2(input: &Input) -> Output {
     //create array of lists of items representing the dock
     let mut grid: ArrayVec<Vec<char>, 9> = ArrayVec::new();
-    for x in 0..9 {
+    for _ in 0..9 {
         grid.push(Vec::new());
     }
 
@@ -122,10 +121,10 @@ pub fn part2(input: &Input) -> Output {
         //let items_to_move = &grid[instruction.1 as usize].take(instruction.0..);
 
         let mut items_to_move: Vec<char> = Vec::new();
-        for countdown in 0..instruction.0 {
+        for _ in 0..instruction.0 {
             items_to_move.push(grid[(instruction.1 - 1) as usize].pop().unwrap());
         }
-        for countdown in 0..instruction.0 {
+        for _ in 0..instruction.0 {
             grid[(instruction.2 - 1) as usize].push(items_to_move.pop().unwrap());
         }
     }
