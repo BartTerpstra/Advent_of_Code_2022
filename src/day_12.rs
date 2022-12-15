@@ -99,6 +99,7 @@ fn cost_to_priority(cost: u32) -> u32 {
 
 //too high 529
 //too high 522
+//wrong 521
 pub fn part1(input: &Input) -> Output {
     //do actual dijkstra
     //by floodfilling cost
