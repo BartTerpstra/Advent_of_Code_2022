@@ -3,11 +3,26 @@ use arrayvec::ArrayVec;
 
 const INPUT: &str = include_str!("../../input/13_test.txt");
 
-pub type Input = ArrayVec<&'static str, 1024>; //todo example, do change
+pub type Input = Vec<(String, String)>;
 
 pub fn read() -> Input {
-    //TODO basically just string slice INPUT by line and select and convert to correct type.
-    INPUT.lines().collect()
+    let answer: Vec<(String, String)> = Vec::new();
+    INPUT
+        .split("\n\n")
+        .map(|x| {
+            let mut first = true;
+            let mut answer: (String, String) = ("".to_string(), "".to_string());
+            let split = x.lines().take(2).map(|x| {
+                if first {
+                    first = false;
+                    answer.0 = x.to_string();
+                } else {
+                    answer.1 = x.to_string();
+                }
+            });
+            answer
+        })
+        .collect()
 }
 
 pub fn run(part: Part) -> Output {
@@ -19,9 +34,9 @@ pub fn run(part: Part) -> Output {
 }
 
 pub fn part1(input: &Input) -> Output {
-    Output::U32(0)
+    Output::U32(1)
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
+    Output::U32(1)
 }
