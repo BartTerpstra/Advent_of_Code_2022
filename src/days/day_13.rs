@@ -1,27 +1,35 @@
+use crate::helper::Output::String;
 use crate::{Output, Part};
-use arrayvec::ArrayVec;
+use arrayvec::{ArrayString, ArrayVec};
+use std::ops::Add;
+use std::string;
 
 const INPUT: &str = include_str!("../../input/13_test.txt");
 
-pub type Input = Vec<(String, String)>;
+pub type Input = Vec<(PacketItem, PacketItem)>;
+
+enum PacketItem {
+    List(Vec<PacketItem>),
+    Value(u8),
+}
 
 pub fn read() -> Input {
-    let answer: Vec<(String, String)> = Vec::new();
     INPUT
         .split("\n\n")
         .map(|x| {
             let mut first = true;
-            let mut answer: (String, String) = ("".to_string(), "".to_string());
-            let split = x.lines().take(2).map(|x| {
+            let mut answer = ("", "");
+            let split = x.lines().map(|x| {
                 if first {
                     first = false;
-                    answer.0 = x.to_string();
+                    answer.0 = x;
                 } else {
-                    answer.1 = x.to_string();
+                    answer.1 = x;
                 }
             });
             answer
         })
+        .map(|x| (to_packet(x.0), to_packet(x.1)))
         .collect()
 }
 
@@ -34,9 +42,102 @@ pub fn run(part: Part) -> Output {
 }
 
 pub fn part1(input: &Input) -> Output {
-    Output::U32(1)
+    let mut answers: Vec<u16> = Vec::new();
+    let mut index: u16 = 1;
+    for x in input {
+        let left = &x.0;
+        let right = &x.1;
+
+        let th = match left {
+            PacketItem::List(left) => {
+                match right {
+                    PacketItem::List(right) => {
+                        let mut answer = true;
+                        for index in 0..left.len() {
+                            if index > right.len() {
+                                answer = false; //right side ran out while left side had items
+                                break;
+                            }
+                            if right[index] < left[index] {
+                                answer = false; //right side was larger
+                                break;
+                            } else if left[index] < right[index] {
+                                break; //left side was smaller
+                            }
+                        }
+                        answer //left items ran out
+                    }
+                    PacketItem::Value(right) => list_and_num(true, left, right),
+                }
+            }
+            PacketItem::Value(left) => match right {
+                PacketItem::List(right) => list_and_num(false, right, left),
+                PacketItem::Value(right) => (left <= right),
+            },
+        };
+        if th {
+            answers.push(index);
+        }
+
+        index += 1;
+    }
+
+    let answer = answers.iter().fold("".to_string(), |x, y| {
+        x.add(y.to_string().as_str()).add(", ")
+    });
+    Output::String(answer)
 }
 
 pub fn part2(input: &Input) -> Output {
     Output::U32(1)
+}
+
+fn list_and_num(is_list_left: bool, list: &Vec<PacketItem>, num: &u8) -> bool {
+    let answer = false;
+    match &list[0] {
+        PacketItem::List(x) => {
+            panic!("unexpected string")
+        }
+        PacketItem::Value(list_item) => list_item >= num,
+    }
+
+    is_list_left == answer
+}
+
+fn to_packet(string: &str) -> PacketItem {
+    if string.is_empty() {
+        return empty();
+    }
+    if string == "[]" {
+        return empty();
+    };
+
+    assert!(string.len() >= 3, "string too short");
+    let mut packet = Vec::new();
+
+    let mut num = "".to_string();
+    for x in string.chars() {
+        match x {
+            '[' => packet.push(to_packet(&string[1..string.len()])),
+            ']' => {
+                if !num.is_empty() {
+                    packet.push(PacketItem::Value(num.parse::<u8>().unwrap()))
+                }
+                return PacketItem::List(packet);
+            }
+            ',' => {
+                packet.push(PacketItem::Value(num.parse::<u8>().unwrap()));
+                num = "".to_string()
+            }
+            x => {
+                num.push(x);
+            }
+        }
+    }
+
+    panic!("unreachable 1")
+}
+
+fn empty() -> PacketItem {
+    return PacketItem::List(Vec::new());
 }
