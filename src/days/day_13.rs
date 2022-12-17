@@ -13,6 +13,14 @@ enum PacketItem {
     Value(u8),
 }
 
+fn get_value(item: &PacketItem) -> u8 {
+    match item {
+        PacketItem::List(x) => return get_value(&x[0]),
+        PacketItem::Value(x) => return *x,
+    }
+    panic!("unexpected state")
+}
+
 pub fn read() -> Input {
     INPUT
         .split("\n\n")
@@ -58,20 +66,20 @@ pub fn part1(input: &Input) -> Output {
                                 answer = false; //right side ran out while left side had items
                                 break;
                             }
-                            if right[index] < left[index] {
+                            if get_value(&right[index]) < get_value(&left[index]) {
                                 answer = false; //right side was larger
                                 break;
-                            } else if left[index] < right[index] {
+                            } else if get_value(&right[index]) > get_value(&left[index]) {
                                 break; //left side was smaller
                             }
                         }
                         answer //left items ran out
                     }
-                    PacketItem::Value(right) => list_and_num(true, left, right),
+                    PacketItem::Value(right) => compare_list_and_num(true, left, right),
                 }
             }
             PacketItem::Value(left) => match right {
-                PacketItem::List(right) => list_and_num(false, right, left),
+                PacketItem::List(right) => compare_list_and_num(false, right, left),
                 PacketItem::Value(right) => (left <= right),
             },
         };
@@ -92,14 +100,19 @@ pub fn part2(input: &Input) -> Output {
     Output::U32(1)
 }
 
-fn list_and_num(is_list_left: bool, list: &Vec<PacketItem>, num: &u8) -> bool {
+/** returns true if
+left >= right && list is the left hand
+OR
+right >= left && list is the right hand
+*/
+fn compare_list_and_num(is_list_left: bool, list: &Vec<PacketItem>, num: &u8) -> bool {
     let answer = false;
-    match &list[0] {
+    let answer = match &list[0] {
         PacketItem::List(x) => {
-            panic!("unexpected string")
+            panic!("unexpected list in comparison")
         }
         PacketItem::Value(list_item) => list_item >= num,
-    }
+    };
 
     is_list_left == answer
 }
