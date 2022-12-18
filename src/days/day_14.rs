@@ -133,7 +133,6 @@ pub fn run(part: Part) -> Output {
 /** How many units of sand come to rest before sand starts flowing into the abyss below?*/
 pub fn part1(input: &Input) -> Output {
     let mut ceil = &mut input.clone();
-    print_ceiling(ceil);
 
     //sand drops at 500,0 1 grain at a time until it rests.
     //once sand tries to rest outside of range, terminate
@@ -164,47 +163,50 @@ pub fn part1(input: &Input) -> Output {
             break;
         }
     }
-    print_ceiling(ceil);
     Output::U32(answer)
 }
 
 pub fn part2(input: &Input) -> Output {
-    // let mut ceil = &mut input.clone();
-    // //sand drops at 500,0 1 grain at a time until it rests.
-    // //once sand tries to rest outside of range, terminate
-    //
-    // //part 2 addition: (near) infinite floor
-    // for x in 0..ceil.width {
-    //     ceil.slice2d[x + (ceil.height - 1) * ceil.width] = true;
-    // }
-    //
-    // let drop_coord = (500, 0);
+    let mut ceil = &mut input.clone();
+    //sand drops at 500,0 1 grain at a time until it rests.
+    //once sand tries to rest outside of range, terminate
+
+    //part 2 addition: (near) infinite floor
+    for x in 0..ceil.width {
+        ceil.slice2d[x + (ceil.height - 1) * ceil.width] = true;
+    }
+
+    let drop_coord = (500, 0);
     let mut answer = 0;
-    // //create grain
-    // let mut grain = drop_coord.clone();
-    // //simulate grain
-    // while in_slice(ceil, grain) {
-    //     let potential_move = down_move(ceil, grain);
-    //     if potential_move.is_some() {
-    //         let new_coord = potential_move.unwrap();
-    //         println!("coord: {},{}", new_coord.0, new_coord.1);
-    //         if new_coord != grain {
-    //             //if it can move down
-    //             grain = potential_move.unwrap();
-    //         } else {
-    //             //settled
-    //             answer += 1;
-    //             ceil.slice2d[to_index(grain, ceil.width)] = true;
-    //             grain = drop_coord.clone();
-    //             println!("settled: {},{}", drop_coord.0, drop_coord.1);
-    //         }
-    //     } else {
-    //         //out of bounds
-    //         break;
-    //     }
-    // }
-    //
-    // //print_ceiling(&ceil);
+    //create grain
+    let mut grain = drop_coord.clone();
+    //simulate grain
+    while in_slice(ceil, grain) {
+        let potential_move = down_move(ceil, grain);
+        if potential_move.is_some() {
+            let new_coord = potential_move.unwrap();
+            println!("coord: {},{}", new_coord.0, new_coord.1);
+            if new_coord != grain {
+                //if it can move down
+                grain = potential_move.unwrap();
+            } else {
+                //settled
+                answer += 1;
+                ceil.slice2d[to_index(grain, ceil.width)] = true;
+                //choked entrance
+                if grain == drop_coord {
+                    break;
+                }
+                grain = drop_coord.clone();
+                println!("settled: {},{}", drop_coord.0, drop_coord.1);
+            }
+        } else {
+            //out of bounds
+            break;
+        }
+    }
+
+    //print_ceiling(&ceil);
     Output::U32(answer)
 }
 
