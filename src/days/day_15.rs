@@ -4,13 +4,12 @@ use arrayvec::ArrayVec;
 use itertools::{Itertools, Position};
 use std::collections::HashSet;
 
-const INPUT: &str = include_str!("../../input/15_test.txt");
+const INPUT: &str = include_str!("../../input/15.txt");
 
-type HasBeenRuledOut = BinaryState;
-pub type Input = Grid<HasBeenRuledOut>; //grid of "has been ruled out"
+pub type Input = Grid<BinaryState>; //grid of "has been ruled out"
 
 pub fn read() -> Input {
-    let atoms: Vec<Vec<Vec<i32>>> = INPUT
+    let atoms: Vec<Vec<Vec<SignedCoord>>> = INPUT
         .split("\n")
         .filter(|x| !x.is_empty())
         .map(|x| {
@@ -39,7 +38,7 @@ pub fn read() -> Input {
     }
 
     //state: has been ruled out
-    let mut grid = Grid::new_dynamic(coords, 0, HasBeenRuledOut::False);
+    let mut grid = Grid::new_dynamic(coords, 0, BinaryState(false));
 
     let normalised_coords: Vec<(bool, Coordinate)> = sensor_beacon_list
         .iter()
@@ -53,24 +52,17 @@ pub fn read() -> Input {
         let beacon = normalised_coords[index * 2 + 1].1;
         let radius = sensor.taxicab_distance(beacon);
 
-        let mut to_mark = HashSet::new();
-        to_mark.insert(sensor);
-        for countdown in 0..radius {
-            let mut temp: Vec<Coordinate> = Vec::new();
-            for x in &to_mark {
-                let mut y = grid.in_grid_neighbours(*x);
-                temp.append(&mut y)
-            }
-            temp.iter().for_each(|x| {
-                to_mark.insert(*x);
-            })
-        }
+        //TODO if radius crosses line, mark line. exclude beacon
 
-        for x in to_mark {
-            if x != beacon {
-                grid.setc(x, BinaryState::True);
-            }
-        }
+        // to_mark.insert(sensor);
+        // for countdown in 0..radius {
+        //     let mut neighbours = grid.in_grid_neighbours(*x);
+        //     for x in neighbours {
+        //         grid.setc(x, BinaryState(true));
+        //     }
+        // }
+        //
+        //         grid.setc(beacon, BinaryState(false));
     }
 
     grid.print();
@@ -90,7 +82,7 @@ pub fn part1(input: &Input) -> Output {
     let mut count = 0;
     let mut pointer = start_of_row;
     while pointer.x < input.width {
-        if *input.getc(pointer) == BinaryState::True {
+        if *input.getc(pointer) == BinaryState(true) {
             count += 1;
         }
         pointer.x += 1

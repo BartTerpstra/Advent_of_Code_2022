@@ -1,3 +1,4 @@
+use arrayvec::ArrayVec;
 use std::fmt::{write, Display, Formatter};
 
 pub type SignedCoord = i32;
@@ -5,7 +6,7 @@ pub type SignedCoord = i32;
 /** grid with strictly positive coordinates
 */
 pub struct Grid<T: Display + Clone> {
-    array: Vec<T>,
+    array: ArrayVec<T, { 10000000 }>,
     pub width: usize,
     pub height: usize,
     offset_x: SignedCoord,
@@ -15,7 +16,7 @@ pub struct Grid<T: Display + Clone> {
 impl<T: Display + Clone> Grid<T> {
     pub fn new(width: usize, height: usize) -> Grid<T> {
         Grid {
-            array: Vec::new(),
+            array: ArrayVec::new(),
             width,
             height,
             offset_x: 0,
@@ -30,7 +31,7 @@ impl<T: Display + Clone> Grid<T> {
         offset_y: SignedCoord,
     ) -> Grid<T> {
         Grid {
-            array: Vec::new(),
+            array: ArrayVec::new(),
             width,
             height,
             offset_x,
@@ -79,13 +80,16 @@ impl<T: Display + Clone> Grid<T> {
         //moves the grid so it's nestled in +/+ zone of the grid, then adds padding
         let offset_x = padding as SignedCoord - min_x;
         let offset_y = padding as SignedCoord - min_y;
-        Grid {
-            array: vec![init; width * height],
+        println!("got here {}", max_x);
+
+        let mut g = Grid {
+            array: ArrayVec::new(),
             width,
             height,
             offset_x,
             offset_y,
-        }
+        };
+        g
     }
 
     pub fn getc(&self, coord: Coordinate) -> &T {
@@ -116,8 +120,8 @@ impl<T: Display + Clone> Grid<T> {
      * you can pass them into this function to translate them back to their original values.
      */
     pub fn normalise_away_from_grid(&self, coordinate: Coordinate) -> (SignedCoord, SignedCoord) {
-        let x: i32 = coordinate.x as SignedCoord - self.offset_x;
-        let y: i32 = coordinate.y as SignedCoord - self.offset_y;
+        let x: SignedCoord = coordinate.x as SignedCoord - self.offset_x;
+        let y: SignedCoord = coordinate.y as SignedCoord - self.offset_y;
         (x, y)
     }
 
@@ -190,20 +194,23 @@ impl Coordinate {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
-pub enum BinaryState {
-    True,
-    False,
-}
+pub struct BinaryState(pub bool);
 
 impl Display for BinaryState {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            BinaryState::True => {
+        match bool::from(*self) {
+            true => {
                 write!(f, "#")
             }
-            BinaryState::False => {
+            false => {
                 write!(f, ".")
             }
         }
+    }
+}
+
+impl From<BinaryState> for bool {
+    fn from(i: BinaryState) -> bool {
+        true
     }
 }
