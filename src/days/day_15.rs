@@ -1,13 +1,13 @@
+use crate::Grid::Grid;
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
 
 const INPUT: &str = include_str!("../../input/15_test.txt");
 
-pub type Input = ArrayVec<&'static str, 1024>; //todo example, do change
+pub type Input = Grid<bool>;
 
 pub fn read() -> Input {
-    //TODO basically just string slice INPUT by line and select and convert to correct type.
-    INPUT.lines().collect()
+    Grid::new_w_offset(0, 0, 20, 20)
 }
 
 pub fn run(part: Part) -> Output {
