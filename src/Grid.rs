@@ -173,3 +173,9 @@ pub struct Coordinate {
     x: usize,
     y: usize,
 }
+
+impl Coordinate {
+    pub fn taxicab_distance(&self, coord: Coordinate) -> usize {
+        self.x.abs_diff(coord.x) + self.y.abs_diff(coord.y)
+    }
+}
