@@ -31,7 +31,7 @@ fn main() {
     // }
 
     //debug: run 1
-    let num: usize = 13;
+    let num: usize = 14;
     let day = days::all()[num - 1];
     let answer_one = day(Part::One);
     let answer_two = day(Part::Two);
