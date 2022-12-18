@@ -1,14 +1,13 @@
-use itertools::Position;
-use std::fmt::Display;
+use std::fmt::{write, Display, Formatter};
 
-type SignedCoord = i32;
+pub type SignedCoord = i32;
 
 /** grid with strictly positive coordinates
 */
 pub struct Grid<T: Display + Clone> {
     array: Vec<T>,
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     offset_x: SignedCoord,
     offset_y: SignedCoord,
 }
@@ -74,8 +73,8 @@ impl<T: Display + Clone> Grid<T> {
 
         //+1 because it counts the elements, yet array and coords start at 0
         //padding *2 because you have to add width and height to both sides
-        let width: usize = max_x.abs_diff(min_x) as usize + (padding * 2 + 1) as usize;
-        let height = max_y.abs_diff(min_y) as usize + (padding * 2 + 1) as usize;
+        let width: usize = max_x.abs_diff(min_x) as usize + (padding * 2) as usize + 1;
+        let height = max_y.abs_diff(min_y) as usize + (padding * 2) as usize + 1;
 
         //moves the grid so it's nestled in +/+ zone of the grid, then adds padding
         let offset_x = padding as SignedCoord - min_x;
@@ -90,11 +89,13 @@ impl<T: Display + Clone> Grid<T> {
     }
 
     pub fn getc(&self, coord: Coordinate) -> &T {
-        let index = self.create_index_from(Coordinate {
-            x: (coord.x as i32 + self.offset_x) as usize,
-            y: (coord.y as i32 + self.offset_y) as usize,
-        });
+        let index = self.create_index_from(coord);
         &self.array[index]
+    }
+
+    pub fn setc(&mut self, coord: Coordinate, value: T) {
+        let index = self.create_index_from(coord);
+        self.array[index] = value
     }
 
     /** in case you are working with coordinates that start at a high value or are in the negative
@@ -147,13 +148,13 @@ impl<T: Display + Clone> Grid<T> {
         if coordinate.y > 0 {
             answer.push(Coordinate {
                 x: coordinate.x,
-                y: coordinate.y,
+                y: coordinate.y - 1,
             });
         }
-        if coordinate.y < (self.width - 1) {
+        if coordinate.y < (self.height - 1) {
             answer.push(Coordinate {
                 x: coordinate.x,
-                y: coordinate.y,
+                y: coordinate.y + 1,
             });
         }
         answer
@@ -166,16 +167,43 @@ impl<T: Display + Clone> Grid<T> {
             }
             print!("{}", self.array[index]);
         }
+        println!()
     }
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Coordinate {
-    x: usize,
-    y: usize,
+    pub x: usize,
+    pub y: usize,
+}
+
+impl Display for Coordinate {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{},{}]", self.x, self.y)
+    }
 }
 
 impl Coordinate {
     pub fn taxicab_distance(&self, coord: Coordinate) -> usize {
         self.x.abs_diff(coord.x) + self.y.abs_diff(coord.y)
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+pub enum BinaryState {
+    True,
+    False,
+}
+
+impl Display for BinaryState {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BinaryState::True => {
+                write!(f, "#")
+            }
+            BinaryState::False => {
+                write!(f, ".")
+            }
+        }
     }
 }
