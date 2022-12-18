@@ -1,5 +1,7 @@
 use crate::{Output, Part};
 use arrayvec::ArrayVec;
+use itertools::Position;
+use std::borrow::BorrowMut;
 use std::cmp::min_by;
 use std::error::Error;
 use std::ops::Range;
@@ -8,7 +10,9 @@ use std::slice::Windows;
 const INPUT: &str = include_str!("../../input/14_test.txt");
 
 pub type Input = CaveCeiling;
+pub type Coordinate = (usize, usize);
 
+#[derive(Clone)]
 struct CaveCeiling {
     normalised_by: usize,
     width: usize,
@@ -67,7 +71,7 @@ pub fn read() -> Input {
 
     for rock in atomised {
         let mut first_coord = true;
-        let mut previous_coord: (usize, usize) = (0, 0);
+        let mut previous_coord: Coordinate = (0, 0);
         for coordinate in rock {
             //normalised coordinates
             let x: usize = (coordinate[0] - min_x) as usize;
@@ -126,24 +130,29 @@ pub fn run(part: Part) -> Output {
 
 /** How many units of sand come to rest before sand starts flowing into the abyss below?*/
 pub fn part1(input: &Input) -> Output {
-    print_ceiling(input);
-    //todo simulate sand
+    let mut ceil = &mut input.clone();
+    //TODO bugged because you can not move out of bounds on the left because you made data usize
+
+
     //sand drops at 500,0 1 grain at a time until it rests.
     //once sand tries to rest outside of range, terminate
 
     let drop_coord = (500 - input.normalised_by, 0);
-    let answer = 0;
-    let dropped_out_of_bounds = false;
-    while !dropped_out_of_bounds {
-        //create grain
-        let grain = drop_coord;
-        //simulate grain
-        //am i out of bounds?
-        //return
-        //continue
-        //can i move down?
-        //move goto
-        //settle next grain
+    let mut answer = 0;
+    //create grain
+    let mut grain = drop_coord;
+    //simulate grain
+    while in_slice(ceil, grain) {
+        let potential_move = down_move(ceil, grain);
+        if potential_move.is_some() {
+            grain = potential_move.unwrap();
+        } else {
+            //settled
+            print_ceiling(input, grain);
+            answer += 1;
+            ceil.slice2d[to_index(grain, ceil.width)] = true;
+            grain = drop_coord;
+        }
     }
     Output::U32(answer)
 }
@@ -152,10 +161,44 @@ pub fn part2(input: &Input) -> Output {
     Output::U32(0)
 }
 
-fn print_ceiling(ceil: &CaveCeiling) {
+fn in_slice(ceil: &CaveCeiling, pos: Coordinate) -> bool {
+    return pos.0 + 1 < ceil.width && pos.0 > 0 && pos.1 + 1 < ceil.height;
+}
+
+fn down_move(ceil: &CaveCeiling, pos: Coordinate) -> Option<Coordinate> {
+    assert!(in_slice(ceil, pos));
+
+    if !ceil.slice2d[pos.0 + (pos.1 + 1) * ceil.width] {
+        return Some((pos.0, pos.1 + 1));
+    }
+    if pos.0 > 0 {
+        let left_down = ceil.slice2d[pos.0 - 1 + (pos.1 + 1) * ceil.width];
+        let left = ceil.slice2d[pos.0 - 1 + (pos.1) * ceil.width];
+        if !left && !left_down{
+            return Some((pos.0-1, pos.1+1))
+        }
+    }
+    if pos.0
+    if !ceil.slice2d[pos.0 - 1 + (pos.1 + 1) * ceil.width] {
+        return Some((pos.0 + 1, pos.1 + 1));
+    }
+    return None;
+}
+
+fn to_index(pos: Coordinate, width: usize) -> usize {
+    pos.0 + pos.1 * width
+}
+
+fn print_ceiling(ceil: &CaveCeiling, grain: Coordinate) {
+    let g_index = to_index(grain, ceil.width);
+
     for index in 0..ceil.slice2d.len() {
         if index % ceil.width == 0 {
             print!("{} ", index / ceil.width)
+        }
+        if index == g_index {
+            println!("O");
+            continue;
         }
         if ceil.slice2d[index] {
             print!("#");
