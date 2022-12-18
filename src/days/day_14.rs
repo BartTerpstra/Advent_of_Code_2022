@@ -7,7 +7,7 @@ use std::error::Error;
 use std::ops::Range;
 use std::slice::Windows;
 
-const INPUT: &str = include_str!("../../input/14_test.txt");
+const INPUT: &str = include_str!("../../input/14.txt");
 
 pub type Input = CaveCeiling;
 pub type Coordinate = (usize, usize);
@@ -27,6 +27,7 @@ pub fn read() -> Input {
     //split by "," (x and y)
     let atomised: Vec<Vec<Vec<T>>> = INPUT
         .split("\n")
+        .filter(|x| !x.is_empty())
         .map(|x| {
             x.split(" -> ")
                 .map(|x| x.split(",").map(|x| x.parse::<u16>().unwrap()).collect())
@@ -139,20 +140,30 @@ pub fn part1(input: &Input) -> Output {
     let drop_coord = (500 - input.normalised_by, 0);
     let mut answer = 0;
     //create grain
-    let mut grain = drop_coord;
+    let mut grain = drop_coord.clone();
     //simulate grain
     while in_slice(ceil, grain) {
         let potential_move = down_move(ceil, grain);
         if potential_move.is_some() {
-            grain = potential_move.unwrap();
+            let new_coord = potential_move.unwrap();
+            println!("coord: {},{}", new_coord.0, new_coord.1);
+            if new_coord != grain {
+                //if it can move down
+                grain = potential_move.unwrap();
+            } else {
+                //settled
+                answer += 1;
+                ceil.slice2d[to_index(grain, ceil.width)] = true;
+                grain = drop_coord.clone();
+                println!("settled: {},{}", drop_coord.0, drop_coord.1);
+            }
         } else {
-            //settled
-            print_ceiling(input, grain);
-            answer += 1;
-            ceil.slice2d[to_index(grain, ceil.width)] = true;
-            grain = drop_coord;
+            //out of bounds
+            break;
         }
     }
+
+    print_ceiling(&ceil);
     Output::U32(answer)
 }
 
@@ -161,42 +172,90 @@ pub fn part2(input: &Input) -> Output {
 }
 
 fn in_slice(ceil: &CaveCeiling, pos: Coordinate) -> bool {
-    return pos.0 + 1 < ceil.width && pos.0 > 0 && pos.1 + 1 < ceil.height;
+    return pos.0 < ceil.width && pos.0 >= 0 && pos.1 + 1 < ceil.height;
 }
 
-fn down_move(ceil: &CaveCeiling, pos: Coordinate) -> Option<Coordinate> {
+fn down_move(ceil: &CaveCeiling, pos: Coordinate) -> Option<(usize, usize)> {
     assert!(in_slice(ceil, pos));
 
     if !ceil.slice2d[pos.0 + (pos.1 + 1) * ceil.width] {
+        println!("checked filled {},{}", pos.0, pos.1 + 1);
         return Some((pos.0, pos.1 + 1));
     }
     if pos.0 > 0 {
         let left_down = ceil.slice2d[pos.0 - 1 + (pos.1 + 1) * ceil.width];
-        let left = ceil.slice2d[pos.0 - 1 + (pos.1) * ceil.width];
-        if !left && !left_down {
+        if !left_down {
             return Some((pos.0 - 1, pos.1 + 1));
         }
+    } else {
+        //best move is out of bounds
+        return None;
     }
-    if !ceil.slice2d[pos.0 - 1 + (pos.1 + 1) * ceil.width] {
-        return Some((pos.0 + 1, pos.1 + 1));
+    if pos.0 < ceil.width {
+        let right_down = ceil.slice2d[pos.0 + 1 + (pos.1 + 1) * ceil.width];
+        if !right_down {
+            return Some((pos.0 + 1, pos.1 + 1));
+        }
+    } else {
+        //best move is out of bounds
+        return None;
     }
-    return None;
+    return Some(pos);
 }
+
+//wrong: erronously does wall check
+// fn down_move(ceil: &CaveCeiling, pos: Coordinate) -> Option<(usize, usize)> {
+//     assert!(in_slice(ceil, pos));
+//
+//     if !ceil.slice2d[pos.0 + (pos.1 + 1) * ceil.width] {
+//         println!("checked filled {},{}", pos.0, pos.1 + 1);
+//         return Some((pos.0, pos.1 + 1));
+//     }
+//     if pos.0 > 0 {
+//         let left_down = ceil.slice2d[pos.0 - 1 + (pos.1 + 1) * ceil.width];
+//         let left = ceil.slice2d[pos.0 - 1 + (pos.1) * ceil.width];
+//         if !left && !left_down {
+//             println!(
+//                 "checked filled {},{} and {},{}",
+//                 pos.0 - 1,
+//                 pos.1,
+//                 pos.0 - 1,
+//                 pos.1 + 1
+//             );
+//             return Some((pos.0 - 1, pos.1 + 1));
+//         }
+//     } else {
+//         //best move is out of bounds
+//         return None;
+//     }
+//     if pos.0 < ceil.width {
+//         let right_down = ceil.slice2d[pos.0 + 1 + (pos.1 + 1) * ceil.width];
+//         let right = ceil.slice2d[pos.0 + 1 + (pos.1) * ceil.width];
+//         if !right && !right_down {
+//             println!(
+//                 "checked filled {},{} and {},{}",
+//                 pos.0 + 1,
+//                 pos.1,
+//                 pos.0 + 1,
+//                 pos.1 + 1
+//             );
+//             return Some((pos.0 + 1, pos.1 + 1));
+//         }
+//     } else {
+//         //best move is out of bounds
+//         return None;
+//     }
+//     return Some(pos);
+// }
 
 fn to_index(pos: Coordinate, width: usize) -> usize {
     pos.0 + pos.1 * width
 }
 
-fn print_ceiling(ceil: &CaveCeiling, grain: Coordinate) {
-    let g_index = to_index(grain, ceil.width);
-
+fn print_ceiling(ceil: &CaveCeiling) {
     for index in 0..ceil.slice2d.len() {
         if index % ceil.width == 0 {
             print!("{} ", index / ceil.width)
-        }
-        if index == g_index {
-            println!("O");
-            continue;
         }
         if ceil.slice2d[index] {
             print!("#");
