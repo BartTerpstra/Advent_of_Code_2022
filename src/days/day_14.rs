@@ -133,7 +133,6 @@ pub fn part1(input: &Input) -> Output {
     let mut ceil = &mut input.clone();
     //TODO bugged because you can not move out of bounds on the left because you made data usize
 
-
     //sand drops at 500,0 1 grain at a time until it rests.
     //once sand tries to rest outside of range, terminate
 
@@ -174,11 +173,10 @@ fn down_move(ceil: &CaveCeiling, pos: Coordinate) -> Option<Coordinate> {
     if pos.0 > 0 {
         let left_down = ceil.slice2d[pos.0 - 1 + (pos.1 + 1) * ceil.width];
         let left = ceil.slice2d[pos.0 - 1 + (pos.1) * ceil.width];
-        if !left && !left_down{
-            return Some((pos.0-1, pos.1+1))
+        if !left && !left_down {
+            return Some((pos.0 - 1, pos.1 + 1));
         }
     }
-    if pos.0
     if !ceil.slice2d[pos.0 - 1 + (pos.1 + 1) * ceil.width] {
         return Some((pos.0 + 1, pos.1 + 1));
     }
