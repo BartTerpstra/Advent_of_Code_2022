@@ -66,10 +66,11 @@ pub fn read() -> Input {
 
     //hint: minimum values are normalisation values
     //y does not have to be normalised
-    let width: usize = (max_x - min_x + 1) as usize;
-    let height: usize = (max_y + 1) as usize;
+    let height: usize = (max_y + 2 + 1) as usize;
+    let width: usize = height * 2 + 1;
     let mut slice2d = vec![false; (width * height)];
 
+    //draw rocks into chart
     for rock in atomised {
         let mut first_coord = true;
         let mut previous_coord: Coordinate = (0, 0);
@@ -132,7 +133,6 @@ pub fn run(part: Part) -> Output {
 /** How many units of sand come to rest before sand starts flowing into the abyss below?*/
 pub fn part1(input: &Input) -> Output {
     let mut ceil = &mut input.clone();
-    //TODO bugged because you can not move out of bounds on the left because you made data usize
 
     //sand drops at 500,0 1 grain at a time until it rests.
     //once sand tries to rest outside of range, terminate
@@ -168,7 +168,40 @@ pub fn part1(input: &Input) -> Output {
 }
 
 pub fn part2(input: &Input) -> Output {
-    Output::U32(0)
+    let mut ceil = &mut input.clone();
+    //TODO bugged because you can not move out of bounds on the left because you made data usize
+
+    //sand drops at 500,0 1 grain at a time until it rests.
+    //once sand tries to rest outside of range, terminate
+
+    let drop_coord = (500 - input.normalised_by, 0);
+    let mut answer = 0;
+    //create grain
+    let mut grain = drop_coord.clone();
+    //simulate grain
+    while in_slice(ceil, grain) {
+        let potential_move = down_move(ceil, grain);
+        if potential_move.is_some() {
+            let new_coord = potential_move.unwrap();
+            println!("coord: {},{}", new_coord.0, new_coord.1);
+            if new_coord != grain {
+                //if it can move down
+                grain = potential_move.unwrap();
+            } else {
+                //settled
+                answer += 1;
+                ceil.slice2d[to_index(grain, ceil.width)] = true;
+                grain = drop_coord.clone();
+                println!("settled: {},{}", drop_coord.0, drop_coord.1);
+            }
+        } else {
+            //out of bounds
+            break;
+        }
+    }
+
+    print_ceiling(&ceil);
+    Output::U32(answer)
 }
 
 fn in_slice(ceil: &CaveCeiling, pos: Coordinate) -> bool {
