@@ -80,7 +80,6 @@ impl<T: Display + Clone> Grid<T> {
         //moves the grid so it's nestled in +/+ zone of the grid, then adds padding
         let offset_x = padding as SignedCoord - min_x;
         let offset_y = padding as SignedCoord - min_y;
-        println!("got here {}", max_x);
 
         let mut g = Grid {
             array: ArrayVec::new(),

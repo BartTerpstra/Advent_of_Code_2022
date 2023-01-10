@@ -46,6 +46,24 @@ pub fn read() -> Input {
         .collect();
 
     //for every pair of beacon sensor, fill taxicab radius with true
+    //removed because breaks with real data
+    // for index in 0..normalised_coords.len() / 2 {
+    //     assert_ne!(normalised_coords[index].0, normalised_coords[index + 1].0);
+    //     let sensor = normalised_coords[index * 2].1;
+    //     let beacon = normalised_coords[index * 2 + 1].1;
+    //     let radius = sensor.taxicab_distance(beacon);
+    // //
+    //     to_mark.insert(sensor);
+    //     for countdown in 0..radius {
+    //         let mut neighbours = grid.in_grid_neighbours(*x);
+    //         for x in neighbours {
+    //             grid.setc(x, BinaryState(true));
+    //         }
+    //     }
+    //
+    //             grid.setc(beacon, BinaryState(false));
+    // }
+
     for index in 0..normalised_coords.len() / 2 {
         assert_ne!(normalised_coords[index].0, normalised_coords[index + 1].0);
         let sensor = normalised_coords[index * 2].1;
@@ -54,15 +72,19 @@ pub fn read() -> Input {
 
         //TODO if radius crosses line, mark line. exclude beacon
 
-        // to_mark.insert(sensor);
-        // for countdown in 0..radius {
-        //     let mut neighbours = grid.in_grid_neighbours(*x);
-        //     for x in neighbours {
-        //         grid.setc(x, BinaryState(true));
-        //     }
-        // }
-        //
-        //         grid.setc(beacon, BinaryState(false));
+        let line = vec![false; grid.width];
+        let line_height = 2000000-1;
+        let line_is_under = sensor.y > line_height && sensor.y - radius < line_height;
+        let line_is_above = sensor.y < line_height && sensor.y + radius > line_height;
+
+        if under {
+            let width = radius - (line_height-sensor.y)
+        } else if above {
+        }
+
+        if beacon.y == line_height {
+            line[beacon.x] = false
+        };
     }
 
     grid.print();
@@ -78,7 +100,7 @@ pub fn run(part: Part) -> Output {
 }
 
 pub fn part1(input: &Input) -> Output {
-    let start_of_row = Coordinate { x: 0, y: 10 };
+    let start_of_row = Coordinate { x: 0, y: 2000000 };
     let mut count = 0;
     let mut pointer = start_of_row;
     while pointer.x < input.width {
