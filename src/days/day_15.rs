@@ -73,17 +73,17 @@ pub fn read() -> Input {
         //TODO if radius crosses line, mark line. exclude beacon
 
         let line = vec![false; grid.width];
-        let line_height = 2000000-1;
+        let line_height = 2000000 - 1;
         let line_is_under = sensor.y > line_height && sensor.y - radius < line_height;
         let line_is_above = sensor.y < line_height && sensor.y + radius > line_height;
 
-        if under {
-            let width = radius - (line_height-sensor.y)
-        } else if above {
+        if line_is_under {
+            let width = radius - (line_height - sensor.y);
+        } else if line_is_above {
         }
 
         if beacon.y == line_height {
-            line[beacon.x] = false
+            // line[beacon.x] = false
         };
     }
 
